@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newborn Baby Name Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> </head>
+<body>
+    <div class="container">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-700">Baby Name Predictor</h1>
+            <p class="text-lg text-gray-600 mt-2">Find unique & auspicious names for your newborn!</p>
+        </header>
+
+        <div class="input-group">
+            <label for="fatherName">Father's Full Name:</label>
+            <input type="text" id="fatherName" placeholder="e.g., Rajesh Kumar Sharma">
+        </div>
+
+        <div class="input-group">
+            <label for="motherName">Mother's Full Name:</label>
+            <input type="text" id="motherName" placeholder="e.g., Priya Singh">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="input-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob">
+            </div>
+            <div class="input-group">
+                <label for="tob">Time of Birth (approximate):</label>
+                <input type="time" id="tob">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="pob">Place of Birth (City/Town):</label>
+            <input type="text" id="pob" placeholder="e.g., New Delhi">
+        </div>
+        
+        <div class="input-group">
+            <label for="gender">Gender of Newborn:</label>
+            <select id="gender">
+                <option value="boy">Boy</option>
+                <option value="girl">Girl</option>
+                <option value="unisex">Unisex</option>
+            </select>
+        </div>
+
+        <button id="predictButton" class="btn-predict">Suggest Names</button>
+
+        <div id="resultsArea" class="mt-10">
+            <div id="combinedNamesSection" class="results-section hidden">
+                <h3>Names from Parents' Names</h3>
+                <ul id="combinedNamesList"></ul>
+                <p>These names are creative combinations from the parents' names.</p>
+            </div>
+
+            <div id="nakshatraNamesSection" class="results-section mt-6 hidden">
+                <h3>Names by Janma Nakshatra (Illustrative)</h3>
+                <p id="nakshatraInfo" class="mb-2 text-sm text-blue-700 font-semibold"></p>
+                <ul id="nakshatraNamesList"></ul>
+                <p class="text-xs text-gray-500 mt-2">
+                    <strong>Disclaimer:</strong> The Nakshatra displayed is based on a simplified calculation (using the day of birth) for illustrative purposes only and is <strong>not astrologically accurate</strong>. For precise Nakshatra determination and auspicious name syllables, please consult a qualified Vedic astrologer.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Notification</h2>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="modalCloseButton">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script> </body>
+</html>
