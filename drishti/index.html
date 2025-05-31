@@ -3,289 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>India Geo-Quiz Flashcards</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>World Map Flashcard Quiz</title>
     <style>
-        /* Custom font and ensuring smooth transitions */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            transition: all 0.5s ease;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.7s ease-in-out; /* For gradual dimming/brightening */
-        }
-        /* Prevent text selection during swipe */
-        .no-select {
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10 and IE 11 */
-            user-select: none; /* Standard syntax */
-        }
-        /* Basic styling for the card to indicate it's interactive */
-        #flashcard-container {
-            touch-action: pan-y; /* Allow vertical scroll, prevent horizontal scroll interference */
-        }
-        .flashcard-content {
-             min-height: 120px; /* Ensure card has a minimum height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #4CAF50;
+            padding: 20px;
+            text-align: center;
         }
 
-        /* Background color classes */
-        .bg-neutral { background-color: #f3f4f6; } /* gray-100 */
-        .bg-correct { background-color: #86efac; } /* green-300 */
-        .bg-incorrect { background-color: #fca5a5; } /* red-300 */
-
-        /* Add a subtle animation for the smiley change */
-        #smiley {
-            transition: transform 0.3s ease-in-out;
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        .smiley-pop {
-            transform: scale(1.3);
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .flashcard {
+            position: relative;
+            height: 350px;
+            perspective: 1000px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .country-name {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .map-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .capital {
+            font-size: 1.8rem;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .emoji {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-wrong {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-wrong:hover {
+            background-color: #d32f2f;
+            transform: translateY(-3px);
+        }
+
+        .btn-correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-correct:hover {
+            background-color: #388E3C;
+            transform: translateY(-3px);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+        }
+
+        .game-over {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-over h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background-color: #2196F3;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background-color: #1976D2;
+        }
+
+        @media (max-width: 600px) {
+            .country-name {
+                font-size: 1.8rem;
+            }
+            
+            .capital {
+                font-size: 1.4rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
-<body class="bg-neutral flex items-center justify-center min-h-screen p-4">
-
-    <div class="quiz-container bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg text-center">
-        <div id="score-area" class="flex justify-between items-center mb-6">
-            <span id="score" class="text-lg font-semibold text-gray-700">Score: 0 / 0</span>
-            <span id="progress" class="text-sm text-gray-500">Question: 0 / 0</span>
-            <span id="smiley" class="text-4xl">😐</span>
+<body>
+    <div class="container">
+        <h1>World Map Flashcard Quiz</h1>
+        
+        <div class="score-container">
+            <div>Score: <span id="score">0</span></div>
+            <div>Remaining: <span id="remaining">10</span></div>
         </div>
-
-        <div id="flashcard-container" class="mb-6 bg-sky-100 p-6 rounded-lg shadow-md cursor-grab active:cursor-grabbing no-select">
-            <div id="flashcard-content" class="flex items-center justify-center flashcard-content">
-                 <p id="question-text" class="text-xl text-gray-800">Loading question...</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        
+        <div class="emoji" id="emoji">😊</div>
+        
+        <div class="flashcard" id="flashcard">
+            <div class="card" id="card">
+                <div class="card-face card-front">
+                    <div class="country-name" id="country-name">Country</div>
+                    <img src="https://raw.githubusercontent.com/djaiss/mapsicon/master/all/ad/1024.png" alt="Country Map" class="map-image" id="map-image">
+                    <p>What is the capital of this country?</p>
+                </div>
+                <div class="card-face card-back">
+                    <div class="country-name" id="country-name-back">Country</div>
+                    <img src="https://raw.githubusercontent.com/djaiss/mapsicon/master/all/ad/1024.png" alt="Country Map" class="map-image" id="map-image-back">
+                    <div class="capital" id="capital">Capital</div>
+                </div>
             </div>
         </div>
-
-        <div id="controls" class="flex justify-around items-center mb-6 space-x-4">
-            <button id="btn-false" aria-label="False or Swipe Left" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg shadow-md transition-all duration-150 ease-in-out transform hover:scale-105 w-2/5 text-base sm:text-lg flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-left-circle-fill mr-2 hidden sm:inline" viewBox="0 0 16 16">
-                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
-                </svg>
-                False
-            </button>
-            <span class="text-gray-500 text-sm">OR</span>
-            <button id="btn-true" aria-label="True or Swipe Right" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg shadow-md transition-all duration-150 ease-in-out transform hover:scale-105 w-2/5 text-base sm:text-lg flex items-center justify-center">
-                True
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-right-circle-fill ml-2 hidden sm:inline" viewBox="0 0 16 16">
-                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
-                </svg>
-            </button>
+        
+        <div class="controls">
+            <button class="btn btn-wrong" id="btn-wrong">❌ Wrong</button>
+            <button class="btn btn-correct" id="btn-correct">✔ Correct</button>
         </div>
-        <p class="mb-6 text-xs text-gray-500">Swipe the card left for False, or right for True.</p>
-
-        <div id="result-area" class="hidden mt-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">Quiz Finished!</h2>
-            <p id="final-score" class="text-2xl text-gray-700 mb-2"></p>
-            <p id="final-message" class="text-lg text-gray-600 mb-6"></p>
-            <button id="restart-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105 text-lg">
-                Restart Quiz
-            </button>
+        
+        <div class="game-over" id="game-over">
+            <h2>Quiz Completed!</h2>
+            <div class="score">Your final score: <span id="final-score">0</span>/10</div>
+            <button class="btn restart-btn" id="restart-btn">Restart Quiz</button>
         </div>
     </div>
 
     <script>
-        // --- DOM Elements ---
-        const body = document.body;
-        const scoreEl = document.getElementById('score');
-        const progressEl = document.getElementById('progress');
-        const smileyEl = document.getElementById('smiley');
-        const questionTextEl = document.getElementById('question-text');
-        const flashcardContainerEl = document.getElementById('flashcard-container');
-        const btnFalse = document.getElementById('btn-false');
-        const btnTrue = document.getElementById('btn-true');
-        const controlsEl = document.getElementById('controls');
-        const resultAreaEl = document.getElementById('result-area');
-        const finalScoreEl = document.getElementById('final-score');
-        const finalMessageEl = document.getElementById('final-message');
-        const restartBtn = document.getElementById('restart-btn');
-
-        // --- Quiz Data ---
-        const questions = [
-            { question: "New Delhi is the capital of India.", answer: true },
-            { question: "The Taj Mahal is located in Mumbai.", answer: false },
-            { question: "Goa is known for its extensive coastline and beaches.", answer: true },
-            { question: "Mount Everest, the world's highest peak, is located in India.", answer: false }, // It's in Nepal/China
-            { question: "Kerala, known as 'God's Own Country', is in Southern India.", answer: true },
-            { question: "The Ganges river originates in the state of Tamil Nadu.", answer: false }, // Originates in Uttarakhand
-            { question: "Rajasthan is the largest state in India by geographical area.", answer: true },
-            { question: "Assam is world-famous for its tea plantations.", answer: true },
-            { question: "Bengaluru (Bangalore) is the capital of Karnataka.", answer: true },
-            { question: "Ladakh became a Union Territory of India in 2019.", answer: true },
-            { question: "India has more than 30 official languages.", answer: false }, // India has 22 scheduled languages
-            { question: "The Red Fort (Lal Qila) is situated in Jaipur, Rajasthan.", answer: false }, // It's in Delhi
-            { question: "India currently comprises 28 states and 8 Union Territories.", answer: true },
-            { question: "The Himalayan mountain range forms India's northern border.", answer: true },
-            { question: "Bengali is the primary language spoken in West Bengal.", answer: true },
-            { question: "Chandigarh serves as the capital for both Punjab and Haryana.", answer: true },
-            { question: "The Godavari River is the longest river in Peninsular India.", answer: true },
-            { question: "Sikkim is India's least populous state.", answer: true },
-            { question: "The Victoria Memorial Hall is a major landmark in Kolkata.", answer: true },
-            { question: "India achieved independence from British rule on August 15, 1947.", answer: true },
-            { question: "The 'Silicon Valley of India' refers to the city of Hyderabad.", answer: false }, // Refers to Bengaluru
-            { question: "The Thar Desert is primarily located in eastern India.", answer: false }, // Located in northwestern India
-            { question: "The Ellora Caves are famous for rock-cut architecture and are in Maharashtra.", answer: true },
-            { question: "The state of Gujarat is on the western coast of India.", answer: true },
-            { question: "Pongal is a major harvest festival celebrated in Kerala.", answer: false } // Celebrated in Tamil Nadu
+        // Country data with map image URLs
+        const countries = [
+            {
+                name: "France",
+                capital: "Paris",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/fr/1024.png"
+            },
+            {
+                name: "Germany",
+                capital: "Berlin",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/de/1024.png"
+            },
+            {
+                name: "Japan",
+                capital: "Tokyo",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/jp/1024.png"
+            },
+            {
+                name: "Brazil",
+                capital: "Brasília",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/br/1024.png"
+            },
+            {
+                name: "Australia",
+                capital: "Canberra",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/au/1024.png"
+            },
+            {
+                name: "Canada",
+                capital: "Ottawa",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/ca/1024.png"
+            },
+            {
+                name: "India",
+                capital: "New Delhi",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/in/1024.png"
+            },
+            {
+                name: "South Africa",
+                capital: "Pretoria",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/za/1024.png"
+            },
+            {
+                name: "Egypt",
+                capital: "Cairo",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/eg/1024.png"
+            },
+            {
+                name: "Mexico",
+                capital: "Mexico City",
+                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/mx/1024.png"
+            }
         ];
-        let shuffledQuestions = [];
-        let currentQuestionIndex = 0;
+
+        // Game state variables
+        let currentCountryIndex = 0;
         let score = 0;
-        let questionsAttempted = 0;
-        let quizOver = false;
+        let questionsAnswered = 0;
+        const totalQuestions = 10;
+        let brightness = 100;
+        let swipeStartX = 0;
+        let swipeEndX = 0;
 
-        // --- Swipe Logic ---
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const swipeThreshold = 50; // Minimum distance for a swipe
+        // DOM elements
+        const countryNameEl = document.getElementById('country-name');
+        const countryNameBackEl = document.getElementById('country-name-back');
+        const mapImageEl = document.getElementById('map-image');
+        const mapImageBackEl = document.getElementById('map-image-back');
+        const capitalEl = document.getElementById('capital');
+        const scoreEl = document.getElementById('score');
+        const remainingEl = document.getElementById('remaining');
+        const emojiEl = document.getElementById('emoji');
+        const cardEl = document.getElementById('card');
+        const flashcardEl = document.getElementById('flashcard');
+        const btnWrongEl = document.getElementById('btn-wrong');
+        const btnCorrectEl = document.getElementById('btn-correct');
+        const gameOverEl = document.getElementById('game-over');
+        const finalScoreEl = document.getElementById('final-score');
+        const restartBtnEl = document.getElementById('restart-btn');
+        const progressEl = document.getElementById('progress');
+        const bodyEl = document.body;
 
-        flashcardContainerEl.addEventListener('touchstart', function(event) {
-            if (quizOver) return;
-            touchStartX = event.changedTouches[0].screenX;
-        }, { passive: true }); // Passive for better scroll performance if needed, though we try to prevent scroll
+        // Initialize the game
+        function initGame() {
+            // Shuffle the countries array
+            shuffleArray(countries);
+            
+            // Reset game state
+            currentCountryIndex = 0;
+            score = 0;
+            questionsAnswered = 0;
+            brightness = 100;
+            
+            // Update UI
+            updateScore();
+            loadCountry(currentCountryIndex);
+            gameOverEl.style.display = 'none';
+            bodyEl.style.filter = 'brightness(1)';
+            emojiEl.textContent = '😊';
+        }
 
-        flashcardContainerEl.addEventListener('touchend', function(event) {
-            if (quizOver) return;
-            touchEndX = event.changedTouches[0].screenX;
+        // Shuffle array function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Load country data into the flashcard
+        function loadCountry(index) {
+            const country = countries[index];
+            countryNameEl.textContent = country.name;
+            countryNameBackEl.textContent = country.name;
+            mapImageEl.src = country.mapUrl;
+            mapImageBackEl.src = country.mapUrl;
+            capitalEl.textContent = country.capital;
+            
+            // Reset card to front
+            cardEl.classList.remove('flipped');
+            
+            // Update progress
+            progressEl.style.width = `${(questionsAnswered / totalQuestions) * 100}%`;
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreEl.textContent = score;
+            remainingEl.textContent = totalQuestions - questionsAnswered;
+        }
+
+        // Handle correct answer
+        function handleCorrect() {
+            score++;
+            questionsAnswered++;
+            updateScore();
+            
+            // Immediate bright green background
+            bodyEl.style.backgroundColor = '#4CAF50';
+            emojiEl.textContent = '😊';
+            
+            // Flip the card to show answer
+            cardEl.classList.add('flipped');
+            
+            // Move to next country after delay
+            setTimeout(nextCountry, 1500);
+        }
+
+        // Handle wrong answer
+        function handleWrong() {
+            questionsAnswered++;
+            updateScore();
+            
+            // Dim the background gradually
+            brightness = Math.max(30, brightness - 10);
+            bodyEl.style.filter = `brightness(${brightness}%)`;
+            bodyEl.style.backgroundColor = '#f44336';
+            emojiEl.textContent = '😞';
+            
+            // Flip the card to show answer
+            cardEl.classList.add('flipped');
+            
+            // Move to next country after delay
+            setTimeout(nextCountry, 1500);
+        }
+
+        // Move to next country or end game
+        function nextCountry() {
+            // Reset background brightness
+            bodyEl.style.filter = 'brightness(100%)';
+            
+            if (questionsAnswered < totalQuestions) {
+                currentCountryIndex = (currentCountryIndex + 1) % countries.length;
+                loadCountry(currentCountryIndex);
+            } else {
+                endGame();
+            }
+        }
+
+        // End the game
+        function endGame() {
+            gameOverEl.style.display = 'flex';
+            finalScoreEl.textContent = `${score}/${totalQuestions}`;
+            
+            // Set background based on performance
+            const percentage = (score / totalQuestions) * 100;
+            if (percentage >= 80) {
+                bodyEl.style.backgroundColor = '#4CAF50';
+                emojiEl.textContent = '😊';
+            } else if (percentage >= 50) {
+                bodyEl.style.backgroundColor = '#FFC107';
+                emojiEl.textContent = '😐';
+            } else {
+                bodyEl.style.backgroundColor = '#f44336';
+                emojiEl.textContent = '😞';
+            }
+        }
+
+        // Handle swipe gestures
+        function handleSwipe() {
+            const swipeDistance = swipeEndX - swipeStartX;
+            
+            // Minimum swipe distance to trigger action
+            if (Math.abs(swipeDistance) > 50) {
+                if (swipeDistance > 0) {
+                    // Swipe right - correct
+                    handleCorrect();
+                } else {
+                    // Swipe left - wrong
+                    handleWrong();
+                }
+            }
+        }
+
+        // Event listeners
+        btnCorrectEl.addEventListener('click', handleCorrect);
+        btnWrongEl.addEventListener('click', handleWrong);
+        restartBtnEl.addEventListener('click', initGame);
+
+        // Click on flashcard to flip
+        flashcardEl.addEventListener('click', function() {
+            if (!cardEl.classList.contains('flipped')) {
+                cardEl.classList.add('flipped');
+            }
+        });
+
+        // Touch events for swipe gestures
+        flashcardEl.addEventListener('touchstart', function(e) {
+            swipeStartX = e.changedTouches[0].screenX;
+        });
+
+        flashcardEl.addEventListener('touchend', function(e) {
+            swipeEndX = e.changedTouches[0].screenX;
             handleSwipe();
         });
 
-        function handleSwipe() {
-            const deltaX = touchEndX - touchStartX;
-            if (Math.abs(deltaX) > swipeThreshold) {
-                if (deltaX < 0) { // Swiped left
-                    handleAnswer(false);
-                } else { // Swiped right
-                    handleAnswer(true);
+        // Mouse events for swipe gestures (for desktop)
+        flashcardEl.addEventListener('mousedown', function(e) {
+            swipeStartX = e.screenX;
+        });
+
+        flashcardEl.addEventListener('mouseup', function(e) {
+            if (swipeStartX !== 0) {
+                swipeEndX = e.screenX;
+                handleSwipe();
+            }
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') {
+                handleCorrect();
+            } else if (e.key === 'ArrowLeft') {
+                handleWrong();
+            } else if (e.key === ' ' || e.key === 'Enter') {
+                if (!cardEl.classList.contains('flipped')) {
+                    cardEl.classList.add('flipped');
+                } else {
+                    nextCountry();
                 }
             }
-            // Reset for next swipe
-            touchStartX = 0;
-            touchEndX = 0;
-        }
+        });
 
-        // --- Quiz Functions ---
-        function startGame() {
-            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-            currentQuestionIndex = 0;
-            score = 0;
-            questionsAttempted = 0;
-            quizOver = false;
-            
-            resultAreaEl.classList.add('hidden');
-            flashcardContainerEl.classList.remove('hidden');
-            controlsEl.classList.remove('hidden');
-            document.querySelector('.quiz-container p.text-xs').classList.remove('hidden');
-
-
-            updateFeedback(null); // Set to neutral initial state
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            if (currentQuestionIndex < shuffledQuestions.length) {
-                questionTextEl.textContent = shuffledQuestions[currentQuestionIndex].question;
-                progressEl.textContent = `Question: ${currentQuestionIndex + 1} / ${shuffledQuestions.length}`;
-                enableControls();
-            } else {
-                endQuiz();
-            }
-        }
-
-        function handleAnswer(userAnswer) {
-            if (quizOver) return;
-            disableControls(); // Prevent multiple answers for the same question
-
-            const correctAnswer = shuffledQuestions[currentQuestionIndex].answer;
-            questionsAttempted++;
-            let isCorrect = userAnswer === correctAnswer;
-
-            if (isCorrect) {
-                score++;
-            }
-            updateFeedback(isCorrect);
-            scoreEl.textContent = `Score: ${score} / ${questionsAttempted}`;
-            
-            // Short delay to show feedback before next question
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (!quizOver) { // Check again in case quiz ended during timeout
-                    loadQuestion();
-                    if (!quizOver) { // If not ended, reset to neutral for next q unless it's the end
-                         // Only reset to neutral if not immediately showing results
-                        if (currentQuestionIndex < shuffledQuestions.length) {
-                           // body.className = 'bg-neutral flex items-center justify-center min-h-screen p-4';
-                           // smileyEl.textContent = '😐'; // Reset smiley for next question
-                        }
-                    }
-                }
-            }, 1500); // 1.5 seconds feedback time
-        }
-
-        function updateFeedback(isCorrect) {
-            // Remove previous color classes
-            body.classList.remove('bg-neutral', 'bg-correct', 'bg-incorrect');
-
-            if (isCorrect === null) { // Initial or between questions
-                body.classList.add('bg-neutral');
-                smileyEl.textContent = '😐';
-            } else if (isCorrect) {
-                body.classList.add('bg-correct');
-                smileyEl.textContent = '😊';
-            } else {
-                body.classList.add('bg-incorrect');
-                smileyEl.textContent = '😟';
-            }
-            // Smiley pop animation
-            smileyEl.classList.add('smiley-pop');
-            setTimeout(() => smileyEl.classList.remove('smiley-pop'), 300);
-        }
-        
-        function disableControls() {
-            btnFalse.disabled = true;
-            btnTrue.disabled = true;
-            flashcardContainerEl.style.pointerEvents = 'none'; // Disable swipe
-        }
-
-        function enableControls() {
-            btnFalse.disabled = false;
-            btnTrue.disabled = false;
-            flashcardContainerEl.style.pointerEvents = 'auto'; // Enable swipe
-        }
-
-
-        function endQuiz() {
-            quizOver = true;
-            flashcardContainerEl.classList.add('hidden');
-            controlsEl.classList.add('hidden');
-            document.querySelector('.quiz-container p.text-xs').classList.add('hidden');
-
-
-            resultAreaEl.classList.remove('hidden');
-            finalScoreEl.textContent = `Your Final Score: ${score} / ${shuffledQuestions.length}`;
-
-            let percentage = (score / shuffledQuestions.length) * 100;
-            let message = "";
-            if (percentage >= 80) {
-                message = "Excellent! You really know India! 🎉";
-                smileyEl.textContent = '🥳';
-                body.className = 'bg-correct flex items-center justify-center min-h-screen p-4';
-            } else if (percentage >= 50) {
-                message = "Good job! A solid understanding. 👍";
-                smileyEl.textContent = '🙂';
-                body.className = 'bg-neutral flex items-center justify-center min-h-screen p-4';
-            } else {
-                message = "Keep learning! There's more to discover about India. 📚";
-                smileyEl.textContent = '🤔';
-                body.className = 'bg-incorrect flex items-center justify-center min-h-screen p-4';
-            }
-            finalMessageEl.textContent = message;
-        }
-
-        // --- Event Listeners ---
-        btnFalse.addEventListener('click', () => handleAnswer(false));
-        btnTrue.addEventListener('click', () => handleAnswer(true));
-        restartBtn.addEventListener('click', startGame);
-
-        // --- Initial Load ---
-        startGame();
+        // Start the game
+        initGame();
     </script>
 </body>
 </html>
