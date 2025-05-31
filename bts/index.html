@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drishti's BTS ARMY Quiz</title>
+    <title>BTS ARMY Quiz</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -134,34 +134,34 @@
     </div>
 
     <script>
-        // Quiz data
+        // Quiz data - Updated with placeholder images from picsum.photos
         const quizData = [
             {
-                image: "https://i.pinimg.com/originals/8b/3e/5a/8b3e5a0a6c5a5e5b5e5a5e5a5e5a5e5.jpg",
+                image: "https://picsum.photos/id/1005/600/600",
                 question: "Who is this BTS member?",
                 options: ["Jin", "Suga", "RM", "Jungkook"],
                 answer: 0
             },
             {
-                image: "https://i.pinimg.com/originals/5b/5e/5a/5b5e5a0a6c5a5e5b5e5a5e5a5e5a5e5.jpg",
+                image: "https://picsum.photos/id/1011/600/600",
                 question: "Who is this BTS member?",
                 options: ["V", "Jimin", "J-Hope", "RM"],
                 answer: 2
             },
             {
-                image: "https://i.pinimg.com/originals/9b/3e/5a/9b3e5a0a6c5a5e5b5e5a5e5a5e5a5e5.jpg",
+                image: "https://picsum.photos/id/1012/600/600",
                 question: "Who is this BTS member?",
                 options: ["Suga", "Jin", "Jungkook", "V"],
                 answer: 3
             },
             {
-                image: "https://i.pinimg.com/originals/7b/3e/5a/7b3e5a0a6c5a5e5b5e5a5e5a5e5a5e5.jpg",
+                image: "https://picsum.photos/id/1015/600/600",
                 question: "Who is this BTS member?",
                 options: ["RM", "J-Hope", "Jimin", "Suga"],
                 answer: 2
             },
             {
-                image: "https://i.pinimg.com/originals/6b/3e/5a/6b3e5a0a6c5a5e5b5e5a5e5a5e5a5e5.jpg",
+                image: "https://picsum.photos/id/1018/600/600",
                 question: "Who is this BTS member?",
                 options: ["Jungkook", "V", "Jin", "RM"],
                 answer: 1
@@ -195,6 +195,7 @@
                 button.textContent = question.options[index];
                 button.disabled = false;
                 button.style.opacity = '1';
+                button.style.backgroundColor = '#e91e63'; // Reset button color
             });
             
             emojiElement.style.display = 'none';
