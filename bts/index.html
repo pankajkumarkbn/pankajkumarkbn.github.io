@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTS ARMY Quiz</title>
+    <title>Drishti's BTS ARMY Quiz</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -14,269 +14,241 @@
         }
         
         .happy {
-            background-color: #ffeb3b;
+            background-color: #FFD700;
         }
         
         .sad {
-            background-color: #9e9e9e;
+            background-color: #555;
+            color: white;
         }
         
         h1 {
-            color: #e91e63;
-            margin-bottom: 30px;
+            color: #FF1493;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         .quiz-container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .idol-image {
-            width: 300px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             object-fit: cover;
             border-radius: 10px;
-            margin: 20px auto;
+            margin: 10px auto;
             display: block;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border: 3px solid #FF1493;
         }
         
-        .options {
+        .options-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 30px 0;
+            gap: 10px;
+            margin: 20px 0;
         }
         
-        button {
-            padding: 15px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            background-color: #e91e63;
+        .option {
+            padding: 10px;
+            background-color: #FF1493;
             color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: transform 0.2s, background-color 0.2s;
         }
         
-        button:hover {
-            background-color: #c2185b;
-            transform: translateY(-2px);
+        .option:hover {
+            transform: scale(1.05);
+            background-color: #C71585;
         }
         
         .score {
-            font-size: 20px;
-            margin: 20px 0;
-            color: #e91e63;
+            font-size: 1.2em;
+            margin: 10px 0;
+            color: #FF1493;
             font-weight: bold;
         }
         
-        .emoji {
-            font-size: 60px;
-            margin: 20px 0;
-            display: none;
+        .feedback {
+            font-size: 3em;
+            margin: 10px 0;
         }
         
         .next-btn {
-            background-color: #4CAF50;
-            padding: 12px 25px;
-            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #4B0082;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
             display: none;
-            margin: 20px auto;
         }
         
         .next-btn:hover {
-            background-color: #388E3C;
+            background-color: #800080;
         }
         
-        .progress-container {
-            width: 100%;
-            background-color: #ddd;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            background-color: #e91e63;
-            border-radius: 10px;
-            width: 0%;
-            transition: width 0.5s;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="quiz-container">
         <h1>BTS ARMY Quiz</h1>
-        <div class="progress-container">
-            <div class="progress-bar" id="progress"></div>
-        </div>
-        <div class="score">Score: <span id="score">0</span></div>
-        <img id="idol-image" class="idol-image" src="" alt="BTS Member">
-        <div id="question" class="question"></div>
-        <div class="options">
-            <button onclick="checkAnswer(0)"></button>
-            <button onclick="checkAnswer(1)"></button>
-            <button onclick="checkAnswer(2)"></button>
-            <button onclick="checkAnswer(3)"></button>
-        </div>
-        <div id="emoji" class="emoji"></div>
-        <button id="next-btn" class="next-btn" onclick="nextQuestion()">Next Question</button>
+        <p>Test your knowledge of BTS members!</p>
         
-        <!-- Audio elements -->
-        <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
-        <audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
-        <audio id="bts-music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto" loop></audio>
+        <div class="score">Score: <span id="score">0</span></div>
+        
+        <div id="quiz-content">
+            <img id="idol-image" class="idol-image" src="" alt="BTS Member">
+            <div class="options-container" id="options">
+                <!-- Options will be added by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <button class="next-btn" id="next-btn">Next Question</button>
+        
+        <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+        <audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
     </div>
 
     <script>
-        // Quiz data - Updated with placeholder images from picsum.photos
+        // BTS quiz data
         const quizData = [
             {
-                image: "https://picsum.photos/id/1005/600/600",
-                question: "Who is this BTS member?",
-                options: ["Jin", "Suga", "RM", "Jungkook"],
-                answer: 0
+                image: "https://i.imgur.com/J6l19cX.jpg",
+                options: ["Jin", "Suga", "RM", "J-Hope"],
+                answer: "RM"
             },
             {
-                image: "https://picsum.photos/id/1011/600/600",
-                question: "Who is this BTS member?",
-                options: ["V", "Jimin", "J-Hope", "RM"],
-                answer: 2
+                image: "https://i.imgur.com/5L4yY9j.jpg",
+                options: ["V", "Jungkook", "Jimin", "Jin"],
+                answer: "Jin"
             },
             {
-                image: "https://picsum.photos/id/1012/600/600",
-                question: "Who is this BTS member?",
-                options: ["Suga", "Jin", "Jungkook", "V"],
-                answer: 3
+                image: "https://i.imgur.com/3Q3Q3Q3.jpg",
+                options: ["Suga", "J-Hope", "RM", "V"],
+                answer: "Suga"
             },
             {
-                image: "https://picsum.photos/id/1015/600/600",
-                question: "Who is this BTS member?",
-                options: ["RM", "J-Hope", "Jimin", "Suga"],
-                answer: 2
+                image: "https://i.imgur.com/4L4yY9j.jpg",
+                options: ["Jimin", "Jungkook", "J-Hope", "V"],
+                answer: "J-Hope"
             },
             {
-                image: "https://picsum.photos/id/1018/600/600",
-                question: "Who is this BTS member?",
-                options: ["Jungkook", "V", "Jin", "RM"],
-                answer: 1
+                image: "https://i.imgur.com/7L4yY9j.jpg",
+                options: ["Jimin", "Jungkook", "V", "Jin"],
+                answer: "Jimin"
+            },
+            {
+                image: "https://i.imgur.com/8L4yY9j.jpg",
+                options: ["V", "Jungkook", "Jimin", "J-Hope"],
+                answer: "V"
+            },
+            {
+                image: "https://i.imgur.com/9L4yY9j.jpg",
+                options: ["Jungkook", "Jimin", "V", "Jin"],
+                answer: "Jungkook"
             }
         ];
 
         // DOM elements
         const idolImage = document.getElementById('idol-image');
-        const questionElement = document.getElementById('question');
-        const optionButtons = document.querySelectorAll('.options button');
+        const optionsContainer = document.getElementById('options');
         const scoreElement = document.getElementById('score');
-        const emojiElement = document.getElementById('emoji');
+        const feedbackElement = document.getElementById('feedback');
         const nextButton = document.getElementById('next-btn');
-        const progressBar = document.getElementById('progress');
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
-        const btsMusic = document.getElementById('bts-music');
+        const body = document.body;
+        const quizContent = document.getElementById('quiz-content');
 
         // Quiz state
         let currentQuestion = 0;
         let score = 0;
-        let quizCompleted = false;
+        let answered = false;
 
-        // Load question
+        // Initialize quiz
         function loadQuestion() {
+            answered = false;
             const question = quizData[currentQuestion];
             idolImage.src = question.image;
-            questionElement.textContent = question.question;
             
-            optionButtons.forEach((button, index) => {
-                button.textContent = question.options[index];
-                button.disabled = false;
-                button.style.opacity = '1';
-                button.style.backgroundColor = '#e91e63'; // Reset button color
+            optionsContainer.innerHTML = '';
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option');
+                button.textContent = option;
+                button.addEventListener('click', () => selectAnswer(option));
+                optionsContainer.appendChild(button);
             });
             
-            emojiElement.style.display = 'none';
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
             nextButton.style.display = 'none';
-            document.body.className = '';
-            
-            // Update progress
-            progressBar.style.width = `${(currentQuestion / quizData.length) * 100}%`;
+            body.className = '';
+            quizContent.style.display = 'block';
         }
 
-        // Check answer
-        function checkAnswer(selectedIndex) {
+        // Handle answer selection
+        function selectAnswer(selectedOption) {
+            if (answered) return;
+            answered = true;
+            
             const question = quizData[currentQuestion];
-            const isCorrect = selectedIndex === question.answer;
+            const isCorrect = selectedOption === question.answer;
             
-            // Disable all buttons
-            optionButtons.forEach(button => {
-                button.disabled = true;
-            });
-            
-            // Highlight correct answer
-            optionButtons[question.answer].style.backgroundColor = '#4CAF50';
-            
-            // Mark wrong answer if selected
-            if (!isCorrect && selectedIndex !== undefined) {
-                optionButtons[selectedIndex].style.backgroundColor = '#f44336';
-                optionButtons[selectedIndex].style.opacity = '0.5';
-            }
-            
-            // Update score if correct
             if (isCorrect) {
                 score++;
                 scoreElement.textContent = score;
-                emojiElement.textContent = '😊';
-                emojiElement.style.display = 'block';
-                document.body.classList.add('happy');
+                feedbackElement.textContent = '😊';
+                body.classList.add('happy');
                 correctSound.play();
-                btsMusic.play();
             } else {
-                emojiElement.textContent = '😢';
-                emojiElement.style.display = 'block';
-                document.body.classList.add('sad');
+                feedbackElement.textContent = '😢';
+                body.classList.add('sad');
                 wrongSound.play();
             }
             
-            nextButton.style.display = 'block';
+            // Disable all options
+            const optionButtons = document.querySelectorAll('.option');
+            optionButtons.forEach(button => {
+                button.disabled = true;
+                if (button.textContent === question.answer) {
+                    button.style.backgroundColor = '#4CAF50';
+                } else if (button.textContent === selectedOption && !isCorrect) {
+                    button.style.backgroundColor = '#F44336';
+                }
+            });
+            
+            nextButton.style.display = 'inline-block';
         }
 
-        // Next question
-        function nextQuestion() {
-            btsMusic.pause();
+        // Move to next question
+        nextButton.addEventListener('click', () => {
             currentQuestion++;
-            
             if (currentQuestion < quizData.length) {
                 loadQuestion();
             } else {
-                endQuiz();
+                // Quiz completed
+                quizContent.style.display = 'none';
+                feedbackElement.textContent = `Quiz Completed! Your score: ${score}/${quizData.length} 🎉`;
+                feedbackElement.style.fontSize = '2em';
+                nextButton.style.display = 'none';
             }
-        }
+        });
 
-        // End quiz
-        function endQuiz() {
-            quizCompleted = true;
-            questionElement.textContent = `Quiz completed! Your final score is ${score}/${quizData.length}`;
-            idolImage.style.display = 'none';
-            optionButtons.forEach(button => {
-                button.style.display = 'none';
-            });
-            nextButton.style.display = 'none';
-            emojiElement.style.display = 'none';
-            progressBar.style.width = '100%';
-            
-            if (score === quizData.length) {
-                document.body.classList.add('happy');
-                emojiElement.textContent = '🎉 Perfect! You\'re a true ARMY! 🎉';
-                emojiElement.style.display = 'block';
-                btsMusic.play();
-            }
-        }
-
-        // Initialize quiz
+        // Start the quiz
         loadQuestion();
     </script>
 </body>
