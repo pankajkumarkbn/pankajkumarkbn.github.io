@@ -1,0 +1,69 @@
+/* style.css */
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease-in-out;
+    /* Tailwind classes like bg-slate-100, text-slate-800 etc., 
+       are still applied directly in the HTML or via JS for dynamic changes.
+       This file is for custom styles not covered by Tailwind or for overrides. */
+}
+
+.quiz-container {
+    transition: opacity 0.5s ease-in-out;
+}
+
+.option-btn {
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.option-btn:hover {
+    transform: translateY(-2px);
+}
+
+.option-btn.correct {
+    background-color: #4ade80 !important; /* Tailwind green-400 */
+    color: white !important;
+    border-color: #22c55e !important; /* Tailwind green-600 */
+}
+
+.option-btn.incorrect {
+    background-color: #f87171 !important; /* Tailwind red-400 */
+    color: white !important;
+    border-color: #ef4444 !important; /* Tailwind red-500 */
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#dim-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.7s ease-in-out;
+    z-index: 9998; /* Below modals, above content */
+}
+
+.feedback-message {
+    min-height: 24px; /* To prevent layout shift */
+    font-weight: 500;
+}
+
+.score-card {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Note: Tailwind CSS is still linked in the HTML for utility classes. 
+   This CSS file is for additional custom styles or overrides if needed.
+   The dynamic background color changes for the body are handled by JavaScript 
+   manipulating Tailwind classes on the body element. */
