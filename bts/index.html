@@ -3,175 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTS ARMY Quiz</title>
+    <title>BTS ARMY Ultimate Quiz Challenge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            transition: background-color 0.5s ease;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        
-        .happy {
-            background-color: #FFD700;
-        }
-        
-        .sad {
-            background-color: #555;
+            background: linear-gradient(135deg, #ff73a1, #ff1493, #8a2be2);
             color: white;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.7s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 2px solid #ff1493;
         }
         
         h1 {
-            color: #FF1493;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 20, 147, 0.8);
+            background: linear-gradient(to right, #ff73a1, #ff1493, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        .quiz-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 20, 147, 0.2);
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff73a1;
+        }
+        
+        .quiz-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
         }
         
         .idol-image {
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
             object-fit: cover;
-            border-radius: 10px;
-            margin: 10px auto;
-            display: block;
-            border: 3px solid #FF1493;
+            border: 5px solid #ff1493;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6);
+            transition: transform 0.3s ease;
         }
         
-        .options-container {
+        .idol-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .options-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
             margin: 20px 0;
         }
         
         .option {
-            padding: 10px;
-            background-color: #FF1493;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            padding: 15px;
+            background: rgba(138, 43, 226, 0.3);
+            border: 2px solid #8a2be2;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
+            transition: all 0.3s ease;
         }
         
         .option:hover {
-            transform: scale(1.05);
-            background-color: #C71585;
+            background: rgba(255, 20, 147, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        .score {
-            font-size: 1.2em;
-            margin: 10px 0;
-            color: #FF1493;
-            font-weight: bold;
+        .option.correct {
+            background: linear-gradient(to right, #4CAF50, #2E7D32);
+            border-color: #2E7D32;
+        }
+        
+        .option.incorrect {
+            background: linear-gradient(to right, #F44336, #C62828);
+            border-color: #C62828;
         }
         
         .feedback {
-            font-size: 3em;
-            margin: 10px 0;
+            font-size: 5rem;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            animation: pop 0.5s ease;
         }
         
-        .next-btn {
-            padding: 10px 20px;
-            background-color: #4B0082;
-            color: white;
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background: linear-gradient(to right, #ff73a1, #ff1493);
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
+            color: white;
             cursor: pointer;
-            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to right, #ff1493, #ff73a1);
+        }
+        
+        button:disabled {
+            background: #555;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .result-screen {
+            text-align: center;
+            padding: 30px;
             display: none;
         }
         
-        .next-btn:hover {
-            background-color: #800080;
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ff73a1;
         }
         
-        .hidden {
-            display: none;
+        .final-score {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ff1493;
+            text-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+        }
+        
+        .comment {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            color: #ff73a1;
+        }
+        
+        .bts-logo {
+            width: 150px;
+            margin: 20px auto;
+            filter: drop-shadow(0 0 10px rgba(255, 20, 147, 0.8));
+        }
+        
+        .happy {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32, #1B5E20);
+        }
+        
+        .sad {
+            background: linear-gradient(135deg, #F44336, #C62828, #B71C1C);
+        }
+        
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .idol-image {
+                width: 180px;
+                height: 180px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="quiz-container">
-        <h1>BTS ARMY Quiz</h1>
-        <p>Test your knowledge of BTS members!</p>
-        
-        <div class="score">Score: <span id="score">0</span></div>
-        
-        <div id="quiz-content">
-            <img id="idol-image" class="idol-image" src="" alt="BTS Member">
-            <div class="options-container" id="options">
-                <!-- Options will be added by JavaScript -->
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-heart"></i> BTS ARMY ULTIMATE QUIZ <i class="fas fa-heart"></i></h1>
+            <p class="subtitle">Test your knowledge of BTS members with this challenging quiz!</p>
+            <div class="stats">
+                <div class="stat-box">
+                    <div>SCORE</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>QUESTION</div>
+                    <div class="stat-value" id="question-count">1/50</div>
+                </div>
+                <div class="stat-box">
+                    <div>REMAINING</div>
+                    <div class="stat-value" id="remaining">49</div>
+                </div>
             </div>
+        </header>
+        
+        <main id="quiz-screen">
+            <div class="quiz-area">
+                <img id="idol-image" class="idol-image" src="" alt="BTS Member">
+                <div class="options-grid" id="options-container">
+                    <!-- Options will be inserted here -->
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+            <div class="controls">
+                <button id="next-btn" disabled>Next Question <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </main>
+        
+        <div class="result-screen" id="result-screen">
+            <h2 class="result-title">Quiz Completed!</h2>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/BTS_logo_%282017%29.svg/800px-BTS_logo_%282017%29.svg.png" alt="BTS Logo" class="bts-logo">
+            <div class="final-score">Your Score: <span id="final-score">0</span>/50</div>
+            <div class="comment" id="comment"></div>
+            <button id="restart-btn"><i class="fas fa-redo"></i> Play Again</button>
         </div>
-        
-        <div class="feedback" id="feedback"></div>
-        
-        <button class="next-btn" id="next-btn">Next Question</button>
-        
-        <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
-        <audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
     </div>
 
+    <!-- Audio elements -->
+    <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+    <audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+    <audio id="win-sound" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
+
     <script>
-        // BTS quiz data with updated image URLs
+        // BTS quiz data with 50+ questions
         const quizData = [
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-rm.jpg",
-                options: ["Jin", "Suga", "RM", "J-Hope"],
-                answer: "RM"
-            },
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-jin.jpg",
-                options: ["V", "Jungkook", "Jimin", "Jin"],
-                answer: "Jin"
-            },
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-suga.jpg",
-                options: ["Suga", "J-Hope", "RM", "V"],
-                answer: "Suga"
-            },
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-jhope.jpg",
-                options: ["Jimin", "Jungkook", "J-Hope", "V"],
-                answer: "J-Hope"
-            },
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-jimin.jpg",
-                options: ["Jimin", "Jungkook", "V", "Jin"],
-                answer: "Jimin"
-            },
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-v.jpg",
-                options: ["V", "Jungkook", "Jimin", "J-Hope"],
-                answer: "V"
-            },
-            {
-                image: "https://ibighit.com/bts/images/bts/profile/member-jungkook.jpg",
-                options: ["Jungkook", "Jimin", "V", "Jin"],
-                answer: "Jungkook"
-            }
+            // RM
+            { image: "https://ibighit.com/bts/images/bts/profile/member-rm.jpg", options: ["Jin", "Suga", "RM", "J-Hope"], answer: "RM" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/RM_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg/800px-RM_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg", options: ["RM", "V", "Jungkook", "Jimin"], answer: "RM" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/RM_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_04_%28cropped%29.jpg/800px-RM_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_04_%28cropped%29.jpg", options: ["Jin", "RM", "Suga", "J-Hope"], answer: "RM" },
+            
+            // Jin
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jin.jpg", options: ["V", "Jungkook", "Jimin", "Jin"], answer: "Jin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Jin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg/800px-Jin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg", options: ["Jin", "Suga", "RM", "J-Hope"], answer: "Jin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Jin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_05_%28cropped%29.jpg/800px-Jin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_05_%28cropped%29.jpg", options: ["V", "Jin", "Jungkook", "Jimin"], answer: "Jin" },
+            
+            // Suga
+            { image: "https://ibighit.com/bts/images/bts/profile/member-suga.jpg", options: ["Suga", "J-Hope", "RM", "V"], answer: "Suga" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Suga_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg/800px-Suga_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg", options: ["Jin", "Suga", "Jungkook", "Jimin"], answer: "Suga" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Suga_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_03_%28cropped%29.jpg/800px-Suga_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_03_%28cropped%29.jpg", options: ["Suga", "J-Hope", "RM", "V"], answer: "Suga" },
+            
+            // J-Hope
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jhope.jpg", options: ["Jimin", "Jungkook", "J-Hope", "V"], answer: "J-Hope" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/J-Hope_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg/800px-J-Hope_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg", options: ["Jin", "Suga", "J-Hope", "RM"], answer: "J-Hope" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/J-Hope_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_03_%28cropped%29.jpg/800px-J-Hope_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_03_%28cropped%29.jpg", options: ["Jimin", "Jungkook", "V", "J-Hope"], answer: "J-Hope" },
+            
+            // Jimin
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jimin.jpg", options: ["Jimin", "Jungkook", "V", "Jin"], answer: "Jimin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Jimin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg/800px-Jimin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg", options: ["Suga", "Jimin", "RM", "J-Hope"], answer: "Jimin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Jimin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg/800px-Jimin_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg", options: ["Jin", "Jimin", "Jungkook", "V"], answer: "Jimin" },
+            
+            // V
+            { image: "https://ibighit.com/bts/images/bts/profile/member-v.jpg", options: ["V", "Jungkook", "Jimin", "J-Hope"], answer: "V" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/V_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg/800px-V_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg", options: ["Jin", "Suga", "V", "RM"], answer: "V" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/V_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg/800px-V_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg", options: ["Jimin", "Jungkook", "V", "J-Hope"], answer: "V" },
+            
+            // Jungkook
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jungkook.jpg", options: ["Jungkook", "Jimin", "V", "Jin"], answer: "Jungkook" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Jungkook_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg/800px-Jungkook_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_01_%28cropped%29.jpg", options: ["Suga", "RM", "Jungkook", "J-Hope"], answer: "Jungkook" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Jungkook_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg/800px-Jungkook_for_Dispatch_%22Boy_With_Luv%22_MV_behind_the_scene%2C_27_March_2019_02_%28cropped%29.jpg", options: ["Jin", "Jungkook", "Jimin", "V"], answer: "Jungkook" },
+            
+            // Additional questions to reach 50+
+            // RM
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/RM_at_the_White_House%2C_31_May_2022.jpg/800px-RM_at_the_White_House%2C_31_May_2022.jpg", options: ["RM", "Suga", "J-Hope", "V"], answer: "RM" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/RM_at_Grammy_Awards_2021.jpg/800px-RM_at_Grammy_Awards_2021.jpg", options: ["Jin", "RM", "Jungkook", "Jimin"], answer: "RM" },
+            
+            // Jin
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Jin_at_the_White_House%2C_31_May_2022.jpg/800px-Jin_at_the_White_House%2C_31_May_2022.jpg", options: ["Suga", "Jin", "J-Hope", "RM"], answer: "Jin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Jin_at_the_United_Nations_General_Assembly%2C_24_September_2021.jpg/800px-Jin_at_the_United_Nations_General_Assembly%2C_24_September_2021.jpg", options: ["Jin", "V", "Jungkook", "Jimin"], answer: "Jin" },
+            
+            // Suga
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Suga_at_the_White_House%2C_31_May_2022.jpg/800px-Suga_at_the_White_House%2C_31_May_2022.jpg", options: ["RM", "Suga", "J-Hope", "V"], answer: "Suga" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Suga_at_Grammy_Awards_2021.jpg/800px-Suga_at_Grammy_Awards_2021.jpg", options: ["Jin", "Suga", "Jungkook", "Jimin"], answer: "Suga" },
+            
+            // J-Hope
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/J-Hope_at_the_White_House%2C_31_May_2022.jpg/800px-J-Hope_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "J-Hope", "V", "Jin"], answer: "J-Hope" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/J-Hope_at_Grammy_Awards_2021.jpg/800px-J-Hope_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "J-Hope", "V"], answer: "J-Hope" },
+            
+            // Jimin
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Jimin_at_the_White_House%2C_31_May_2022.jpg/800px-Jimin_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "Jungkook", "V", "Jin"], answer: "Jimin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Jimin_at_Grammy_Awards_2021.jpg/800px-Jimin_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "Jimin", "J-Hope"], answer: "Jimin" },
+            
+            // V
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/V_at_the_White_House%2C_31_May_2022.jpg/800px-V_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "V", "Jungkook", "Jin"], answer: "V" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/V_at_Grammy_Awards_2021.jpg/800px-V_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "V", "J-Hope"], answer: "V" },
+            
+            // Jungkook
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Jungkook_at_the_White_House%2C_31_May_2022.jpg/800px-Jungkook_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "Jungkook", "V", "Jin"], answer: "Jungkook" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Jungkook_at_Grammy_Awards_2021.jpg/800px-Jungkook_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "Jungkook", "J-Hope"], answer: "Jungkook" },
+            
+            // More to reach 50
+            { image: "https://ibighit.com/bts/images/bts/profile/member-rm.jpg", options: ["Jin", "Suga", "RM", "J-Hope"], answer: "RM" },
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jin.jpg", options: ["V", "Jungkook", "Jimin", "Jin"], answer: "Jin" },
+            { image: "https://ibighit.com/bts/images/bts/profile/member-suga.jpg", options: ["Suga", "J-Hope", "RM", "V"], answer: "Suga" },
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jhope.jpg", options: ["Jimin", "Jungkook", "J-Hope", "V"], answer: "J-Hope" },
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jimin.jpg", options: ["Jimin", "Jungkook", "V", "Jin"], answer: "Jimin" },
+            { image: "https://ibighit.com/bts/images/bts/profile/member-v.jpg", options: ["V", "Jungkook", "Jimin", "J-Hope"], answer: "V" },
+            { image: "https://ibighit.com/bts/images/bts/profile/member-jungkook.jpg", options: ["Jungkook", "Jimin", "V", "Jin"], answer: "Jungkook" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/RM_at_the_White_House%2C_31_May_2022.jpg/800px-RM_at_the_White_House%2C_31_May_2022.jpg", options: ["RM", "Suga", "J-Hope", "V"], answer: "RM" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Jin_at_the_White_House%2C_31_May_2022.jpg/800px-Jin_at_the_White_House%2C_31_May_2022.jpg", options: ["Suga", "Jin", "J-Hope", "RM"], answer: "Jin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Suga_at_the_White_House%2C_31_May_2022.jpg/800px-Suga_at_the_White_House%2C_31_May_2022.jpg", options: ["RM", "Suga", "J-Hope", "V"], answer: "Suga" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/J-Hope_at_the_White_House%2C_31_May_2022.jpg/800px-J-Hope_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "J-Hope", "V", "Jin"], answer: "J-Hope" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Jimin_at_the_White_House%2C_31_May_2022.jpg/800px-Jimin_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "Jungkook", "V", "Jin"], answer: "Jimin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/V_at_the_White_House%2C_31_May_2022.jpg/800px-V_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "V", "Jungkook", "Jin"], answer: "V" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Jungkook_at_the_White_House%2C_31_May_2022.jpg/800px-Jungkook_at_the_White_House%2C_31_May_2022.jpg", options: ["Jimin", "Jungkook", "V", "Jin"], answer: "Jungkook" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/RM_at_Grammy_Awards_2021.jpg/800px-RM_at_Grammy_Awards_2021.jpg", options: ["Jin", "RM", "Jungkook", "Jimin"], answer: "RM" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Jin_at_the_United_Nations_General_Assembly%2C_24_September_2021.jpg/800px-Jin_at_the_United_Nations_General_Assembly%2C_24_September_2021.jpg", options: ["Jin", "V", "Jungkook", "Jimin"], answer: "Jin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Suga_at_Grammy_Awards_2021.jpg/800px-Suga_at_Grammy_Awards_2021.jpg", options: ["Jin", "Suga", "Jungkook", "Jimin"], answer: "Suga" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/J-Hope_at_Grammy_Awards_2021.jpg/800px-J-Hope_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "J-Hope", "V"], answer: "J-Hope" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Jimin_at_Grammy_Awards_2021.jpg/800px-Jimin_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "Jimin", "J-Hope"], answer: "Jimin" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/V_at_Grammy_Awards_2021.jpg/800px-V_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "V", "J-Hope"], answer: "V" },
+            { image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Jungkook_at_Grammy_Awards_2021.jpg/800px-Jungkook_at_Grammy_Awards_2021.jpg", options: ["Suga", "RM", "Jungkook", "J-Hope"], answer: "Jungkook" }
         ];
 
         // DOM elements
         const idolImage = document.getElementById('idol-image');
-        const optionsContainer = document.getElementById('options');
+        const optionsContainer = document.getElementById('options-container');
         const scoreElement = document.getElementById('score');
+        const questionCountElement = document.getElementById('question-count');
+        const remainingElement = document.getElementById('remaining');
         const feedbackElement = document.getElementById('feedback');
         const nextButton = document.getElementById('next-btn');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const finalScoreElement = document.getElementById('final-score');
+        const commentElement = document.getElementById('comment');
+        const restartButton = document.getElementById('restart-btn');
+        const body = document.body;
+        
+        // Audio elements
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
-        const body = document.body;
-        const quizContent = document.getElementById('quiz-content');
+        const winSound = document.getElementById('win-sound');
 
         // Quiz state
         let currentQuestion = 0;
@@ -180,24 +419,35 @@
 
         // Initialize quiz
         function loadQuestion() {
+            if (currentQuestion >= quizData.length) {
+                showResults();
+                return;
+            }
+            
             answered = false;
             const question = quizData[currentQuestion];
             idolImage.src = question.image;
+            idolImage.alt = `BTS Member - ${question.answer}`;
             
+            // Update question counters
+            questionCountElement.textContent = `${currentQuestion + 1}/${quizData.length}`;
+            remainingElement.textContent = quizData.length - currentQuestion - 1;
+            
+            // Clear and create options
             optionsContainer.innerHTML = '';
             question.options.forEach(option => {
-                const button = document.createElement('button');
+                const button = document.createElement('div');
                 button.classList.add('option');
                 button.textContent = option;
                 button.addEventListener('click', () => selectAnswer(option));
                 optionsContainer.appendChild(button);
             });
             
+            // Reset feedback and button states
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
-            nextButton.style.display = 'none';
+            nextButton.disabled = true;
             body.className = '';
-            quizContent.style.display = 'block';
         }
 
         // Handle answer selection
@@ -220,32 +470,85 @@
                 wrongSound.play();
             }
             
-            // Disable all options
+            // Highlight correct and incorrect answers
             const optionButtons = document.querySelectorAll('.option');
             optionButtons.forEach(button => {
-                button.disabled = true;
                 if (button.textContent === question.answer) {
-                    button.style.backgroundColor = '#4CAF50';
+                    button.classList.add('correct');
                 } else if (button.textContent === selectedOption && !isCorrect) {
-                    button.style.backgroundColor = '#F44336';
+                    button.classList.add('incorrect');
                 }
+                button.style.pointerEvents = 'none';
             });
             
-            nextButton.style.display = 'inline-block';
+            nextButton.disabled = false;
         }
 
         // Move to next question
         nextButton.addEventListener('click', () => {
             currentQuestion++;
-            if (currentQuestion < quizData.length) {
-                loadQuestion();
-            } else {
-                // Quiz completed
-                quizContent.style.display = 'none';
-                feedbackElement.textContent = `Quiz Completed! Your score: ${score}/${quizData.length} 🎉`;
-                feedbackElement.style.fontSize = '2em';
-                nextButton.style.display = 'none';
+            loadQuestion();
+        });
+
+        // Show results
+        function showResults() {
+            quizScreen.style.display = 'none';
+            resultScreen.style.display = 'block';
+            finalScoreElement.textContent = score;
+            
+            // Generate comment based on score
+            const percentage = (score / quizData.length) * 100;
+            let comment = '';
+            if (percentage >= 90) comment = "You're a true ARMY! 💜 BTS would be proud!";
+            else if (percentage >= 70) comment = "Great job! You know your BTS members well!";
+            else if (percentage >= 50) comment = "Good effort! Keep learning about BTS!";
+            else comment = "Nice try! You'll do better next time!";
+            
+            commentElement.textContent = comment;
+            
+            // Play win sound and show celebration
+            winSound.play();
+            createFireworks();
+        }
+
+        // Create celebration fireworks
+        function createFireworks() {
+            const colors = ['#ff1493', '#ff73a1', '#8a2be2', '#4B0082', '#FFD700'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.classList.add('firework');
+                    
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const size = Math.random() * 10 + 5;
+                    
+                    firework.style.backgroundColor = color;
+                    firework.style.width = `${size}px`;
+                    firework.style.height = `${size}px`;
+                    firework.style.left = `${Math.random() * 100}vw`;
+                    firework.style.top = `${Math.random() * 100}vh`;
+                    firework.style.animation = `pop 0.5s forwards`;
+                    
+                    document.body.appendChild(firework);
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 500);
+                }, i * 100);
             }
+        }
+
+        // Restart quiz
+        restartButton.addEventListener('click', () => {
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = score;
+            quizScreen.style.display = 'block';
+            resultScreen.style.display = 'none';
+            body.className = '';
+            loadQuestion();
         });
 
         // Start the quiz
