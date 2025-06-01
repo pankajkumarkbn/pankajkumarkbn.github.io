@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drishti's Duckling Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka One', cursive;
+            overflow: hidden; /* Prevent scrollbars from game elements */
+            background-color: #87CEEB; /* Sky Blue */
+        }
+        .game-container {
+            width: 100%;
+            max-width: 800px; /* Max game width */
+            height: 500px; /* Fixed game height */
+            background: linear-gradient(to bottom, #87CEEB 70%, #90EE90 70%); /* Sky and Grass */
+            border: 5px solid #4CAF50; /* Green border */
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        #duckling {
+            width: 60px;
+            height: 60px;
+            background-color: #FFD700; /* Gold Yellow */
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* Egg shape */
+            position: absolute;
+            bottom: 0; /* Starts on the ground */
+            left: 50px;
+            transition: bottom 0.3s ease-out; /* Smooth jump */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #duckling::before { /* Beak */
+            content: '';
+            width: 20px;
+            height: 10px;
+            background-color: #FFA500; /* Orange */
+            border-radius: 5px 5px 0 0;
+            position: absolute;
+            right: -10px;
+            top: 20px;
+            transform: rotate(-10deg);
+        }
+         #duckling::after { /* Eye */
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: #000;
+            border-radius: 50%;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+        .hurdle {
+            width: 40px;
+            height: 80px;
+            background-color: #A0522D; /* Sienna Brown */
+            border: 3px solid #8B4513; /* SaddleBrown */
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            bottom: 0; /* On the ground */
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .worm {
+            width: 30px;
+            height: 15px;
+            background-color: #FF69B4; /* Hot Pink */
+            border-radius: 50%;
+            position: absolute;
+            bottom: 10px; /* Slightly above ground or on it */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .worm::after { /* Worm segment */
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: #FF1493; /* Deep Pink */
+            border-radius: 50%;
+            position: absolute;
+            left: 5px;
+        }
+
+        #score-board {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2.5rem; /* Larger text */
+            color: #fff;
+            text-shadow: 2px 2px 4px #000000;
+            z-index: 100;
+        }
+        #power-board {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            color: #FFD700; /* Gold */
+            text-shadow: 2px 2px 4px #000000;
+            z-index: 100;
+        }
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 2rem;
+            z-index: 200;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .message-box button {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-family: 'Fredoka One', cursive;
+        }
+        .message-box button:hover {
+            background-color: #45a049;
+        }
+
+        /* Animation for hurdles and worms moving */
+        @keyframes moveLeft {
+            0% { right: -80px; } /* Start off-screen */
+            100% { right: 100%; } /* Move fully across */
+        }
+    </style>
+</head>
+<body class="bg-sky-400 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="game-instructions" class="text-center mb-4 p-4 bg-white/80 rounded-lg shadow-lg">
+        <h1 class="text-4xl text-orange-500 mb-2">Duckling Adventure!</h1>
+        <p class="text-lg text-gray-700">Help the duckling catch worms and jump over hurdles!</p>
+        <p class="text-lg text-gray-700">Press <strong class="text-red-500">SPACE</strong> to Jump.</p>
+    </div>
+
+    <div id="game-container" class="game-container">
+        <div id="duckling"></div>
+        <div id="score-board">Score: 0</div>
+        <div id="power-board">Power: 0</div>
+        </div>
+
+    <div id="message-box" class="message-box hidden">
+        <p id="message-text">Game Over!</p>
+        <p id="final-score">Your Score: 0</p>
+        <button id="restart-button">Play Again?</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const gameContainer = document.getElementById('game-container');
+        const duckling = document.getElementById('duckling');
+        const scoreBoard = document.getElementById('score-board');
+        const powerBoard = document.getElementById('power-board'); // For future power-ups
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const gameInstructions = document.getElementById('game-instructions');
+
+        // Game State
+        let score = 0;
+        let power = 0; // Initialize power
+        let isJumping = false;
+        let isGameOver = true; // Game starts in a "game over" state until start
+        let gameSpeed = 3; // Initial speed of obstacles
+        let speedIncreaseInterval = 20000; // Increase speed every 20 seconds
+        let lastSpeedIncreaseTime = 0;
+
+        // Game Loop Variables
+        let gameLoopInterval;
+        let hurdleSpawnInterval;
+        let wormSpawnInterval;
+
+        const DUCKLING_HEIGHT = 60; // px
+        const GAME_HEIGHT = gameContainer.clientHeight; // 500px
+        const GROUND_LEVEL = 0; // bottom: 0 for duckling
+        const JUMP_HEIGHT = 180; // How high the duckling jumps
+        const JUMP_DURATION = 600; // ms for full jump cycle
+
+        // --- Game Initialization ---
+        function initGame() {
+            score = 0;
+            power = 0;
+            isJumping = false;
+            isGameOver = false;
+            gameSpeed = 3;
+            lastSpeedIncreaseTime = Date.now();
+            duckling.style.bottom = GROUND_LEVEL + 'px';
+            updateScoreDisplay();
+            updatePowerDisplay(); // Update power display
+            
+            messageBox.classList.add('hidden');
+            gameInstructions.classList.add('hidden'); // Hide instructions once game starts
+
+            // Clear existing obstacles and collectibles
+            document.querySelectorAll('.hurdle, .worm').forEach(el => el.remove());
+
+            // Start game loops
+            gameLoopInterval = setInterval(gameLoop, 20); // Main game logic
+            hurdleSpawnInterval = setInterval(spawnHurdle, 2500 / (gameSpeed / 3)); // Spawn hurdles more frequently as speed increases
+            wormSpawnInterval = setInterval(spawnWorm, 1800 / (gameSpeed / 3)); // Spawn worms
+        }
+
+        // --- Duckling Controls ---
+        function jump() {
+            if (!isJumping && !isGameOver) {
+                isJumping = true;
+                let jumpStartTime = Date.now();
+
+                function animateJump() {
+                    let elapsedTime = Date.now() - jumpStartTime;
+                    let progress = elapsedTime / JUMP_DURATION;
+
+                    if (progress < 1) {
+                        // Parabolic jump: y = -4 * JUMP_HEIGHT * x * (x - 1)
+                        // x is progress (0 to 1)
+                        let currentHeight = GROUND_LEVEL + (-4 * JUMP_HEIGHT * progress * (progress - 1));
+                        duckling.style.bottom = Math.min(currentHeight, GAME_HEIGHT - DUCKLING_HEIGHT) + 'px';
+                        requestAnimationFrame(animateJump);
+                    } else {
+                        duckling.style.bottom = GROUND_LEVEL + 'px';
+                        isJumping = false;
+                    }
+                }
+                animateJump();
+            }
+        }
+
+        // --- Spawning Elements ---
+        function spawnHurdle() {
+            if (isGameOver) return;
+            const hurdle = document.createElement('div');
+            hurdle.classList.add('hurdle');
+            hurdle.style.right = '-40px'; // Start off-screen to the right
+            // Randomize hurdle height slightly for variation
+            const randomHeight = 60 + Math.random() * 40; // Height between 60px and 100px
+            hurdle.style.height = randomHeight + 'px';
+            gameContainer.appendChild(hurdle);
+        }
+
+        function spawnWorm() {
+            if (isGameOver) return;
+            const worm = document.createElement('div');
+            worm.classList.add('worm');
+            worm.style.right = '-30px'; // Start off-screen
+            // Worms can appear at different heights, some requiring a jump
+            const randomBottom = 10 + Math.random() * (JUMP_HEIGHT - 30); // From ground up to near jump peak
+            worm.style.bottom = randomBottom + 'px';
+            gameContainer.appendChild(worm);
+        }
+
+        // --- Movement & Collision ---
+        function moveElements() {
+            if (isGameOver) return;
+
+            // Move Hurdles
+            document.querySelectorAll('.hurdle').forEach(hurdle => {
+                let hurdleRight = parseFloat(hurdle.style.right);
+                hurdleRight += gameSpeed;
+                hurdle.style.right = hurdleRight + 'px';
+
+                // Collision with hurdle
+                if (checkCollision(duckling, hurdle)) {
+                    gameOver("Oh no! You hit a hurdle!");
+                }
+
+                // Remove hurdle if off-screen
+                if (hurdleRight > gameContainer.clientWidth) {
+                    hurdle.remove();
+                }
+            });
+
+            // Move Worms
+            document.querySelectorAll('.worm').forEach(worm => {
+                let wormRight = parseFloat(worm.style.right);
+                wormRight += gameSpeed * 0.8; // Worms can move slightly slower or faster
+                worm.style.right = wormRight + 'px';
+
+                // Collision with worm (collection)
+                if (checkCollision(duckling, worm)) {
+                    score += 10;
+                    power += 1; // Gain power for collecting worms
+                    updateScoreDisplay();
+                    updatePowerDisplay();
+                    worm.remove(); // Collect the worm
+                    // Add a small visual feedback for collecting worm
+                    showFeedback("+10", duckling.getBoundingClientRect());
+                }
+
+                // Remove worm if off-screen
+                if (wormRight > gameContainer.clientWidth) {
+                    worm.remove();
+                }
+            });
+        }
+        
+        function showFeedback(text, position) {
+            const feedbackEl = document.createElement('div');
+            feedbackEl.textContent = text;
+            feedbackEl.style.position = 'absolute';
+            feedbackEl.style.left = (position.left + position.width / 2 - 15) + 'px'; // Center on duckling
+            feedbackEl.style.top = (position.top - 30) + 'px'; // Above duckling
+            feedbackEl.style.color = '#FFD700';
+            feedbackEl.style.fontSize = '1.5rem';
+            feedbackEl.style.fontWeight = 'bold';
+            feedbackEl.style.textShadow = '1px 1px 2px black';
+            feedbackEl.style.transition = 'opacity 0.5s, transform 0.5s';
+            feedbackEl.style.opacity = '1';
+            feedbackEl.style.transform = 'translateY(0)';
+            gameContainer.appendChild(feedbackEl);
+
+            setTimeout(() => {
+                feedbackEl.style.opacity = '0';
+                feedbackEl.style.transform = 'translateY(-20px)';
+                setTimeout(() => feedbackEl.remove(), 500);
+            }, 500);
+        }
+
+
+        function checkCollision(element1, element2) {
+            const rect1 = element1.getBoundingClientRect();
+            const rect2 = element2.getBoundingClientRect();
+
+            return !(
+                rect1.right < rect2.left ||
+                rect1.left > rect2.right ||
+                rect1.bottom < rect2.top ||
+                rect1.top > rect2.bottom
+            );
+        }
+
+        // --- Game Loop & State Management ---
+        function gameLoop() {
+            if (isGameOver) return;
+            moveElements();
+            increaseSpeedOverTime();
+        }
+        
+        function increaseSpeedOverTime() {
+            if (Date.now() - lastSpeedIncreaseTime > speedIncreaseInterval) {
+                gameSpeed += 0.5; // Increase game speed
+                lastSpeedIncreaseTime = Date.now();
+                console.log("Game speed increased to: ", gameSpeed);
+
+                // Adjust spawn rates based on new speed
+                clearInterval(hurdleSpawnInterval);
+                clearInterval(wormSpawnInterval);
+                hurdleSpawnInterval = setInterval(spawnHurdle, Math.max(800, 2500 / (gameSpeed / 3))); // Ensure minimum spawn time
+                wormSpawnInterval = setInterval(spawnWorm, Math.max(600, 1800 / (gameSpeed / 3)));
+            }
+        }
+
+        function updateScoreDisplay() {
+            scoreBoard.textContent = `Score: ${score}`;
+        }
+        
+        function updatePowerDisplay() {
+            powerBoard.textContent = `Power: ${power}`;
+        }
+
+        function gameOver(reason) {
+            if (isGameOver) return; // Prevent multiple gameOver calls
+            isGameOver = true;
+            clearInterval(gameLoopInterval);
+            clearInterval(hurdleSpawnInterval);
+            clearInterval(wormSpawnInterval);
+
+            messageText.textContent = reason || "Game Over!";
+            finalScoreDisplay.textContent = `Your Score: ${score} | Power: ${power}`;
+            messageBox.classList.remove('hidden');
+            gameInstructions.classList.remove('hidden'); // Show instructions again
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault(); // Prevent page scrolling
+                if (isGameOver) {
+                    // If game is over and space is pressed, it could also restart
+                    // initGame(); // Or rely on the button
+                } else {
+                    jump();
+                }
+            }
+        });
+
+        restartButton.addEventListener('click', () => {
+            initGame();
+        });
+        
+        // Initial setup message
+        function showStartMessage() {
+            isGameOver = true; // Make sure game is in 'over' state
+            messageText.textContent = "Ready to Play?";
+            finalScoreDisplay.textContent = "Help the Duckling!";
+            restartButton.textContent = "Start Game!";
+            messageBox.classList.remove('hidden');
+            gameInstructions.classList.remove('hidden');
+        }
+
+        // --- Start the game ---
+        // Don't auto-start, wait for button click.
+        window.onload = () => {
+            // Set initial game container height explicitly if needed, though CSS handles it
+            // gameContainer.style.height = GAME_HEIGHT + 'px';
+            showStartMessage();
+        };
+
+    </script>
+</body>
+</html>
