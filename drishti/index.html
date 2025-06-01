@@ -3,511 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Map Flashcard Quiz</title>
+    <title>BTS ARMY Quiz!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-            transition: all 0.5s ease;
-        }
-
         body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #4CAF50;
-            padding: 20px;
-            text-align: center;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease;
         }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        .quiz-container {
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
         }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
+        .option-button {
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
-
-        .score-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
+        .option-button:hover:not(:disabled) {
+            transform: translateY(-2px);
         }
-
-        .flashcard {
-            position: relative;
-            height: 350px;
-            perspective: 1000px;
-            margin-bottom: 30px;
-            cursor: pointer;
+        .option-button:active:not(:disabled) {
+            transform: translateY(0px);
         }
-
-        .card {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .correct-answer {
+            background-color: #4ade80 !important; /* Tailwind green-500 */
+            color: white !important;
         }
-
-        .card.flipped {
-            transform: rotateY(180deg);
+        .wrong-answer-selected {
+            background-color: #f87171 !important; /* Tailwind red-500 */
+            color: white !important;
+            opacity: 0.7;
         }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 15px;
-            padding: 20px;
-            background-color: white;
+        .feedback-animation {
+            animation: fadeInScale 0.5s ease-out;
         }
-
-        .card-back {
-            transform: rotateY(180deg);
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
         }
+        /* Custom purple color similar to BTS official color */
+        .bg-bts-purple { background-color: #500095; }
+        .text-bts-purple { color: #500095; }
+        .border-bts-purple { border-color: #500095; }
+        .hover\:bg-bts-purple-dark:hover { background-color: #3b006e; }
 
-        .country-name {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #333;
+        /* Dimmed background for incorrect answer */
+        .bg-dim-incorrect {
+            background-color: #7f8c8d !important; /* A muted grey */
         }
-
-        .map-image {
-            width: 100%;
-            height: 200px;
-            object-fit: contain;
-            margin-bottom: 20px;
-        }
-
-        .capital {
-            font-size: 1.8rem;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .emoji {
-            font-size: 3rem;
-            margin: 20px 0;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-wrong {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-wrong:hover {
-            background-color: #d32f2f;
-            transform: translateY(-3px);
-        }
-
-        .btn-correct {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .btn-correct:hover {
-            background-color: #388E3C;
-            transform: translateY(-3px);
-        }
-
-        .progress-container {
-            width: 100%;
-            height: 10px;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: #4CAF50;
-            width: 0%;
-        }
-
-        .game-over {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .game-over h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .restart-btn {
-            background-color: #2196F3;
-            color: white;
-            margin-top: 20px;
-        }
-
-        .restart-btn:hover {
-            background-color: #1976D2;
-        }
-
-        @media (max-width: 600px) {
-            .country-name {
-                font-size: 1.8rem;
-            }
-            
-            .capital {
-                font-size: 1.4rem;
-            }
-            
-            .btn {
-                padding: 12px 25px;
-                font-size: 1rem;
-            }
+        /* Bright background for correct answer */
+        .bg-bright-correct {
+            background-color: #f1c40f !important; /* A cheerful yellow/gold */
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>World Map Flashcard Quiz</h1>
-        
-        <div class="score-container">
-            <div>Score: <span id="score">0</span></div>
-            <div>Remaining: <span id="remaining">10</span></div>
+<body class="bg-gradient-to-br from-purple-200 via-pink-200 to-indigo-200 min-h-screen flex items-center justify-center p-4">
+
+    <div id="quizApp" class="w-full max-w-2xl">
+
+        <div id="startScreen" class="bg-white p-8 rounded-xl shadow-2xl text-center">
+            <img src="https://placehold.co/150x150/A020F0/FFFFFF?text=BTS+Logo" alt="BTS Logo" class="mx-auto mb-6 rounded-full w-32 h-32 object-cover">
+            <h1 class="text-4xl font-bold text-bts-purple mb-4">BTS ARMY Quiz!</h1>
+            <p class="text-gray-700 mb-8 text-lg">Test your knowledge about the global superstars!</p>
+            <button id="startButton" class="w-full bg-bts-purple text-white font-semibold py-3 px-6 rounded-lg hover:bg-bts-purple-dark transition duration-300 text-xl shadow-md">
+                Start Quiz
+            </button>
         </div>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progress"></div>
-        </div>
-        
-        <div class="emoji" id="emoji">😊</div>
-        
-        <div class="flashcard" id="flashcard">
-            <div class="card" id="card">
-                <div class="card-face card-front">
-                    <div class="country-name" id="country-name">Country</div>
-                    <img src="https://raw.githubusercontent.com/djaiss/mapsicon/master/all/ad/1024.png" alt="Country Map" class="map-image" id="map-image">
-                    <p>What is the capital of this country?</p>
-                </div>
-                <div class="card-face card-back">
-                    <div class="country-name" id="country-name-back">Country</div>
-                    <img src="https://raw.githubusercontent.com/djaiss/mapsicon/master/all/ad/1024.png" alt="Country Map" class="map-image" id="map-image-back">
-                    <div class="capital" id="capital">Capital</div>
-                </div>
+
+        <div id="quizScreen" class="hidden bg-white p-6 sm:p-8 rounded-xl shadow-2xl quiz-container">
+            <div class="flex justify-between items-center mb-6">
+                <div id="score" class="text-xl font-semibold text-bts-purple">Score: 0</div>
+                <div id="questionCounter" class="text-gray-600">Question 1/5</div>
             </div>
+
+            <img id="idolImage" src="https://placehold.co/400x300/E0B0FF/333333?text=BTS+Member" alt="BTS Idol" class="w-full h-48 sm:h-64 object-cover rounded-lg mb-6 shadow-lg">
+            
+            <h2 id="questionText" class="text-2xl font-semibold text-gray-800 mb-6 min-h-[3em]">Question text goes here...</h2>
+
+            <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                </div>
+
+            <div id="feedbackArea" class="text-center mb-6 min-h-[3em]">
+                <span id="smileyFace" class="text-5xl"></span>
+                <p id="feedbackText" class="text-lg font-medium"></p>
+            </div>
+
+            <button id="nextButton" class="w-full bg-bts-purple text-white font-semibold py-3 px-6 rounded-lg hover:bg-bts-purple-dark transition duration-300 text-lg shadow-md hidden">
+                Next Question
+            </button>
         </div>
-        
-        <div class="controls">
-            <button class="btn btn-wrong" id="btn-wrong">❌ Wrong</button>
-            <button class="btn btn-correct" id="btn-correct">✔ Correct</button>
-        </div>
-        
-        <div class="game-over" id="game-over">
-            <h2>Quiz Completed!</h2>
-            <div class="score">Your final score: <span id="final-score">0</span>/10</div>
-            <button class="btn restart-btn" id="restart-btn">Restart Quiz</button>
+
+        <div id="endScreen" class="hidden bg-white p-8 rounded-xl shadow-2xl text-center">
+            <img src="https://placehold.co/150x150/A020F0/FFFFFF?text=ARMY" alt="ARMY Logo" class="mx-auto mb-6 rounded-full w-32 h-32 object-cover">
+            <h1 class="text-3xl font-bold text-bts-purple mb-4">Quiz Finished!</h1>
+            <p id="finalScore" class="text-gray-700 text-2xl mb-2">Your final score is: 0</p>
+            <p id="endMessage" class="text-gray-600 mb-8 text-lg">Great job, ARMY!</p>
+            <button id="restartButton" class="w-full bg-bts-purple text-white font-semibold py-3 px-6 rounded-lg hover:bg-bts-purple-dark transition duration-300 text-xl shadow-md">
+                Play Again
+            </button>
         </div>
     </div>
 
     <script>
-        // Country data with map image URLs
-        const countries = [
+        const quizData = [
             {
-                name: "France",
-                capital: "Paris",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/fr/1024.png"
+                imageURL: "https://placehold.co/400x300/C9A0DC/333333?text=RM",
+                questionText: "Which member is the leader of BTS and known for his English speaking skills?",
+                options: ["Jin", "Suga", "RM", "J-Hope"],
+                correctAnswer: "RM"
             },
             {
-                name: "Germany",
-                capital: "Berlin",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/de/1024.png"
+                imageURL: "https://placehold.co/400x300/FFC0CB/333333?text=Jungkook",
+                questionText: "Who is famously known as the 'Golden Maknae' of BTS?",
+                options: ["V", "Jungkook", "Jimin", "Suga"],
+                correctAnswer: "Jungkook"
             },
             {
-                name: "Japan",
-                capital: "Tokyo",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/jp/1024.png"
+                imageURL: "https://placehold.co/400x300/ADD8E6/333333?text=Dynamite",
+                questionText: "Which BTS song was their first all-English single to top the Billboard Hot 100?",
+                options: ["Butter", "Permission to Dance", "Boy With Luv", "Dynamite"],
+                correctAnswer: "Dynamite"
             },
             {
-                name: "Brazil",
-                capital: "Brasília",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/br/1024.png"
+                imageURL: "https://placehold.co/400x300/FFDAB9/333333?text=Jin",
+                questionText: "Who is the oldest member of BTS, also known as 'Worldwide Handsome'?",
+                options: ["RM", "J-Hope", "Jin", "Suga"],
+                correctAnswer: "Jin"
             },
             {
-                name: "Australia",
-                capital: "Canberra",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/au/1024.png"
+                imageURL: "https://placehold.co/400x300/90EE90/333333?text=V",
+                questionText: "What is V's real name?",
+                options: ["Park Jimin", "Kim Namjoon", "Jung Hoseok", "Kim Taehyung"],
+                correctAnswer: "Kim Taehyung"
             },
             {
-                name: "Canada",
-                capital: "Ottawa",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/ca/1024.png"
+                imageURL: "https://placehold.co/400x300/F08080/333333?text=Suga",
+                questionText: "Which member is also a successful solo artist under the name Agust D?",
+                options: ["Jimin", "Suga", "RM", "V"],
+                correctAnswer: "Suga"
             },
             {
-                name: "India",
-                capital: "New Delhi",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/in/1024.png"
-            },
-            {
-                name: "South Africa",
-                capital: "Pretoria",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/za/1024.png"
-            },
-            {
-                name: "Egypt",
-                capital: "Cairo",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/eg/1024.png"
-            },
-            {
-                name: "Mexico",
-                capital: "Mexico City",
-                mapUrl: "https://raw.githubusercontent.com/djaiss/mapsicon/master/all/mx/1024.png"
+                imageURL: "https://placehold.co/400x300/DA70D6/333333?text=J-Hope",
+                questionText: "Who is the main dancer and often referred to as 'Sunshine'?",
+                options: ["Jungkook", "V", "J-Hope", "Jin"],
+                correctAnswer: "J-Hope"
             }
         ];
 
-        // Game state variables
-        let currentCountryIndex = 0;
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const endScreen = document.getElementById('endScreen');
+
+        const startButton = document.getElementById('startButton');
+        const nextButton = document.getElementById('nextButton');
+        const restartButton = document.getElementById('restartButton');
+
+        const idolImage = document.getElementById('idolImage');
+        const questionTextElem = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const scoreElem = document.getElementById('score');
+        const questionCounterElem = document.getElementById('questionCounter');
+        
+        const smileyFaceElem = document.getElementById('smileyFace');
+        const feedbackTextElem = document.getElementById('feedbackText');
+        const feedbackArea = document.getElementById('feedbackArea');
+
+        const finalScoreElem = document.getElementById('finalScore');
+        const endMessageElem = document.getElementById('endMessage');
+
+        let currentQuestionIndex = 0;
         let score = 0;
-        let questionsAnswered = 0;
-        const totalQuestions = 10;
-        let brightness = 100;
-        let swipeStartX = 0;
-        let swipeEndX = 0;
+        let questions = []; // Shuffled questions
 
-        // DOM elements
-        const countryNameEl = document.getElementById('country-name');
-        const countryNameBackEl = document.getElementById('country-name-back');
-        const mapImageEl = document.getElementById('map-image');
-        const mapImageBackEl = document.getElementById('map-image-back');
-        const capitalEl = document.getElementById('capital');
-        const scoreEl = document.getElementById('score');
-        const remainingEl = document.getElementById('remaining');
-        const emojiEl = document.getElementById('emoji');
-        const cardEl = document.getElementById('card');
-        const flashcardEl = document.getElementById('flashcard');
-        const btnWrongEl = document.getElementById('btn-wrong');
-        const btnCorrectEl = document.getElementById('btn-correct');
-        const gameOverEl = document.getElementById('game-over');
-        const finalScoreEl = document.getElementById('final-score');
-        const restartBtnEl = document.getElementById('restart-btn');
-        const progressEl = document.getElementById('progress');
-        const bodyEl = document.body;
+        // Sound synthesis with Tone.js
+        let correctSound, wrongSound;
 
-        // Initialize the game
-        function initGame() {
-            // Shuffle the countries array
-            shuffleArray(countries);
-            
-            // Reset game state
-            currentCountryIndex = 0;
-            score = 0;
-            questionsAnswered = 0;
-            brightness = 100;
-            
-            // Update UI
-            updateScore();
-            loadCountry(currentCountryIndex);
-            gameOverEl.style.display = 'none';
-            bodyEl.style.filter = 'brightness(1)';
-            emojiEl.textContent = '😊';
+        // Initialize Tone.js sounds after user interaction (e.g., start button click)
+        async function initializeSounds() {
+            if (Tone.context.state !== 'running') {
+                await Tone.start(); // Start audio context on user gesture
+            }
+            correctSound = new Tone.Synth({
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 }
+            }).toDestination();
+
+            wrongSound = new Tone.Synth({
+                oscillator: { type: "square" },
+                envelope: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.2 }
+            }).toDestination();
         }
+        
+        startButton.addEventListener('click', async () => {
+            await initializeSounds(); // Initialize sounds on first interaction
+            startQuiz();
+        });
+        nextButton.addEventListener('click', loadNextQuestion);
+        restartButton.addEventListener('click', startQuiz);
 
-        // Shuffle array function
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
+            return array;
         }
 
-        // Load country data into the flashcard
-        function loadCountry(index) {
-            const country = countries[index];
-            countryNameEl.textContent = country.name;
-            countryNameBackEl.textContent = country.name;
-            mapImageEl.src = country.mapUrl;
-            mapImageBackEl.src = country.mapUrl;
-            capitalEl.textContent = country.capital;
+        function startQuiz() {
+            questions = shuffleArray([...quizData]); // Shuffle a copy of quizData
+            currentQuestionIndex = 0;
+            score = 0;
+            updateScoreDisplay();
             
-            // Reset card to front
-            cardEl.classList.remove('flipped');
-            
-            // Update progress
-            progressEl.style.width = `${(questionsAnswered / totalQuestions) * 100}%`;
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            quizScreen.style.opacity = '0';
+            quizScreen.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                quizScreen.style.opacity = '1';
+                quizScreen.style.transform = 'translateY(0)';
+            }, 50);
+
+            loadQuestion();
+            resetBodyBackground();
         }
 
-        // Update score display
-        function updateScore() {
-            scoreEl.textContent = score;
-            remainingEl.textContent = totalQuestions - questionsAnswered;
-        }
+        function loadQuestion() {
+            resetFeedback();
+            nextButton.classList.add('hidden');
+            enableOptionButtons();
 
-        // Handle correct answer
-        function handleCorrect() {
-            score++;
-            questionsAnswered++;
-            updateScore();
-            
-            // Immediate bright green background
-            bodyEl.style.backgroundColor = '#4CAF50';
-            emojiEl.textContent = '😊';
-            
-            // Flip the card to show answer
-            cardEl.classList.add('flipped');
-            
-            // Move to next country after delay
-            setTimeout(nextCountry, 1500);
-        }
+            if (currentQuestionIndex < questions.length) {
+                const currentQuestion = questions[currentQuestionIndex];
+                idolImage.src = currentQuestion.imageURL;
+                idolImage.alt = `Image for ${currentQuestion.questionText.substring(0, 20)}`; // Alt text
+                questionTextElem.textContent = currentQuestion.questionText;
+                questionCounterElem.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
 
-        // Handle wrong answer
-        function handleWrong() {
-            questionsAnswered++;
-            updateScore();
-            
-            // Dim the background gradually
-            brightness = Math.max(30, brightness - 10);
-            bodyEl.style.filter = `brightness(${brightness}%)`;
-            bodyEl.style.backgroundColor = '#f44336';
-            emojiEl.textContent = '😞';
-            
-            // Flip the card to show answer
-            cardEl.classList.add('flipped');
-            
-            // Move to next country after delay
-            setTimeout(nextCountry, 1500);
-        }
+                optionsContainer.innerHTML = '';
+                const shuffledOptions = shuffleArray([...currentQuestion.options]);
 
-        // Move to next country or end game
-        function nextCountry() {
-            // Reset background brightness
-            bodyEl.style.filter = 'brightness(100%)';
-            
-            if (questionsAnswered < totalQuestions) {
-                currentCountryIndex = (currentCountryIndex + 1) % countries.length;
-                loadCountry(currentCountryIndex);
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-button', 'w-full', 'bg-purple-100', 'text-bts-purple', 'font-medium', 'py-3', 'px-4', 'rounded-lg', 'hover:bg-purple-200', 'border-2', 'border-purple-200', 'focus:outline-none', 'focus:ring-2', 'focus:ring-bts-purple');
+                    button.addEventListener('click', () => selectAnswer(option, button));
+                    optionsContainer.appendChild(button);
+                });
             } else {
-                endGame();
+                showEndScreen();
             }
         }
 
-        // End the game
-        function endGame() {
-            gameOverEl.style.display = 'flex';
-            finalScoreEl.textContent = `${score}/${totalQuestions}`;
+        function selectAnswer(selectedOption, button) {
+            disableOptionButtons();
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === currentQuestion.correctAnswer;
+
+            if (isCorrect) {
+                score++;
+                updateScoreDisplay();
+                button.classList.add('correct-answer');
+                smileyFaceElem.textContent = '😄';
+                feedbackTextElem.textContent = "Correct! You're a true ARMY!";
+                feedbackTextElem.className = 'text-green-600 font-medium text-lg';
+                document.body.className = 'bg-bright-correct min-h-screen flex items-center justify-center p-4 transition-all duration-500 ease-in-out';
+                if (correctSound) correctSound.triggerAttackRelease("C5", "8n", Tone.now());
+
+            } else {
+                button.classList.add('wrong-answer-selected');
+                // Highlight the correct answer
+                Array.from(optionsContainer.children).forEach(optButton => {
+                    if (optButton.textContent === currentQuestion.correctAnswer) {
+                        optButton.classList.add('correct-answer'); // Show the correct one
+                        optButton.classList.remove('bg-purple-100', 'text-bts-purple'); // remove default style
+                    }
+                });
+                smileyFaceElem.textContent = '😟';
+                feedbackTextElem.textContent = `Not quite! The correct answer was ${currentQuestion.correctAnswer}.`;
+                feedbackTextElem.className = 'text-red-600 font-medium text-lg';
+                document.body.className = 'bg-dim-incorrect min-h-screen flex items-center justify-center p-4 transition-all duration-500 ease-in-out';
+                 if (wrongSound) wrongSound.triggerAttackRelease("A3", "8n", Tone.now() + 0.05); // Slightly dissonant
+            }
             
-            // Set background based on performance
-            const percentage = (score / totalQuestions) * 100;
-            if (percentage >= 80) {
-                bodyEl.style.backgroundColor = '#4CAF50';
-                emojiEl.textContent = '😊';
+            feedbackArea.classList.add('feedback-animation');
+            nextButton.classList.remove('hidden');
+            if (currentQuestionIndex === questions.length -1) {
+                nextButton.textContent = "Show Results";
+            } else {
+                nextButton.textContent = "Next Question";
+            }
+        }
+
+        function updateScoreDisplay() {
+            scoreElem.textContent = `Score: ${score}`;
+        }
+
+        function disableOptionButtons() {
+            Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = true;
+                button.classList.add('opacity-70', 'cursor-not-allowed');
+            });
+        }
+
+        function enableOptionButtons() {
+             Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = false;
+                button.classList.remove('opacity-70', 'cursor-not-allowed', 'correct-answer', 'wrong-answer-selected');
+                // Reset to default styles if they were changed
+                button.classList.add('bg-purple-100', 'text-bts-purple');
+            });
+        }
+        
+        function resetFeedback() {
+            smileyFaceElem.textContent = '';
+            feedbackTextElem.textContent = '';
+            feedbackArea.classList.remove('feedback-animation');
+            resetBodyBackground();
+        }
+
+        function resetBodyBackground() {
+            document.body.className = 'bg-gradient-to-br from-purple-200 via-pink-200 to-indigo-200 min-h-screen flex items-center justify-center p-4';
+        }
+
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            quizScreen.style.opacity = '0';
+            quizScreen.style.transform = 'translateX(-20px)';
+            setTimeout(() => {
+                loadQuestion();
+                quizScreen.style.opacity = '1';
+                quizScreen.style.transform = 'translateX(0px)';
+            }, 300);
+        }
+
+        function showEndScreen() {
+            quizScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            finalScoreElem.textContent = `Your final score is: ${score}/${questions.length}`;
+            
+            let message = "Great job, ARMY!";
+            const percentage = (score / questions.length) * 100;
+            if (percentage === 100) {
+                message = "Perfect score! You're a BTS expert! Borahae! 💜";
+            } else if (percentage >= 75) {
+                message = "Amazing! You know BTS so well!";
             } else if (percentage >= 50) {
-                bodyEl.style.backgroundColor = '#FFC107';
-                emojiEl.textContent = '😐';
+                message = "Well done! Keep learning about our boys!";
             } else {
-                bodyEl.style.backgroundColor = '#f44336';
-                emojiEl.textContent = '😞';
+                message = "Good effort! There's always more to discover about BTS!";
             }
+            endMessageElem.textContent = message;
+
+            endScreen.style.opacity = '0';
+            endScreen.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                endScreen.style.opacity = '1';
+                endScreen.style.transform = 'translateY(0)';
+            }, 50);
+            resetBodyBackground();
         }
 
-        // Handle swipe gestures
-        function handleSwipe() {
-            const swipeDistance = swipeEndX - swipeStartX;
-            
-            // Minimum swipe distance to trigger action
-            if (Math.abs(swipeDistance) > 50) {
-                if (swipeDistance > 0) {
-                    // Swipe right - correct
-                    handleCorrect();
-                } else {
-                    // Swipe left - wrong
-                    handleWrong();
-                }
-            }
-        }
+        // Initial setup: Show start screen
+        startScreen.classList.remove('hidden');
+        quizScreen.classList.add('hidden');
+        endScreen.classList.add('hidden');
 
-        // Event listeners
-        btnCorrectEl.addEventListener('click', handleCorrect);
-        btnWrongEl.addEventListener('click', handleWrong);
-        restartBtnEl.addEventListener('click', initGame);
-
-        // Click on flashcard to flip
-        flashcardEl.addEventListener('click', function() {
-            if (!cardEl.classList.contains('flipped')) {
-                cardEl.classList.add('flipped');
-            }
-        });
-
-        // Touch events for swipe gestures
-        flashcardEl.addEventListener('touchstart', function(e) {
-            swipeStartX = e.changedTouches[0].screenX;
-        });
-
-        flashcardEl.addEventListener('touchend', function(e) {
-            swipeEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-
-        // Mouse events for swipe gestures (for desktop)
-        flashcardEl.addEventListener('mousedown', function(e) {
-            swipeStartX = e.screenX;
-        });
-
-        flashcardEl.addEventListener('mouseup', function(e) {
-            if (swipeStartX !== 0) {
-                swipeEndX = e.screenX;
-                handleSwipe();
-            }
-        });
-
-        // Keyboard support
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowRight') {
-                handleCorrect();
-            } else if (e.key === 'ArrowLeft') {
-                handleWrong();
-            } else if (e.key === ' ' || e.key === 'Enter') {
-                if (!cardEl.classList.contains('flipped')) {
-                    cardEl.classList.add('flipped');
-                } else {
-                    nextCountry();
-                }
-            }
-        });
-
-        // Start the game
-        initGame();
     </script>
 </body>
 </html>
