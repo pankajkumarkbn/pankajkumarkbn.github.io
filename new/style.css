@@ -1,81 +1,90 @@
 /* style.css */
-/* You can add more specific custom styles here if needed, complementing Tailwind CSS */
 
+/* Base styling for the body to use the new fonts */
 body {
-    scroll-behavior: smooth; /* Enables smooth scrolling for anchor links */
+    scroll-behavior: smooth;
+    /* font-family: 'Inter', sans-serif; /* Default readable font */
+    /* background-color: #111827; /* Tailwind gray-900 */
+    /* color: #d1d5db; /* Tailwind gray-300 */
 }
 
-/* Navigation bar shrink effect */
+/* Custom scrollbar for a more techy feel (WebKit browsers) */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #1f2937; /* gray-800 */
+}
+::-webkit-scrollbar-thumb {
+    background: #06b6d4; /* cyan-500 */
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #0891b2; /* cyan-600 */
+}
+
+
+/* Navigation bar shrink effect - adjusted for dark theme */
+#navbar {
+    background-color: rgba(17, 24, 39, 0.6); /* Initial semi-transparent dark bg */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+}
 #navbar.scrolled {
-    background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding-top: 0.75rem; /* 12px */
-    padding-bottom: 0.75rem; /* 12px */
+    background-color: rgba(31, 41, 55, 0.9); /* Darker, less transparent on scroll (gray-800) */
+    box-shadow: 0 2px 10px rgba(6, 182, 212, 0.2); /* Cyan glow shadow */
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
-#navbar.scrolled .nav-link,
-#navbar.scrolled a:first-child { /* Target the logo/name as well */
-    color: #1f2937; /* Darker text color for better contrast on white bg */
+#navbar.scrolled .nav-link {
+    color: #9ca3af; /* gray-400 */
 }
-
-#navbar.scrolled a:first-child:hover,
-#navbar.scrolled .nav-link:hover {
-     color: #2563eb; /* Blue-600 from Tailwind */
+#navbar.scrolled .nav-link:hover,
+#navbar.scrolled a:first-child:hover { /* Target logo too */
+     color: #22d3ee; /* cyan-400 */
 }
-
-
-/* Hero Section Animations */
-@keyframes fade-in-down {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fade-in-up {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in-down {
-    animation: fade-in-down 0.8s ease-out forwards;
-}
-
-.animate-fade-in-up {
-    animation: fade-in-up 0.8s ease-out 0.4s forwards; /* Delay this animation */
-}
-
-/* A subtle bounce for the call to action button in hero */
-@keyframes bounce-slow {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-.animate-bounce-slow {
-    animation: bounce-slow 2s infinite 1s; /* Start after 1 second delay */
+#navbar a:first-child { /* Logo color */
+    /* color: #22d3ee; /* cyan-400 */
 }
 
 
-/* Section Title Styling */
-.section-title, .section-title-light {
+/* Hero Section Cool Effects */
+.hero-background-animation {
+    /* Example: Animated Gradient Background */
+    background: linear-gradient(-45deg, #083344, #0e7490, #155e75, #082f49); /* Dark cyan/blue tones */
+    background-size: 400% 400%;
+    animation: gradientBG 25s ease infinite;
+    
+    /* Optional: Add a subtle pattern or overlay */
+    /* position: relative; */
+}
+/* .hero-background-animation::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('path-to-subtle-grid-or-binary-pattern.png');
+    opacity: 0.05;
+    pointer-events: none;
+} */
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Typed.js cursor color */
+.typed-cursor {
+    color: #6ee7b7; /* green-300 */
+    font-weight: bold;
+}
+
+
+/* Section Title Styling - Cyber Theme */
+.section-title {
     position: relative;
-    padding-bottom: 1rem; /* Space for the underline */
+    padding-bottom: 1rem;
+    font-family: 'Roboto Mono', monospace; /* Techy font for titles */
 }
 
 .section-title::after {
@@ -84,80 +93,175 @@ body {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px; /* Width of the underline */
-    height: 4px; /* Thickness of the underline */
-    background-color: #2563eb; /* Tailwind blue-600 */
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, #06b6d4, #10b981); /* Cyan to Green gradient */
     border-radius: 2px;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.5); /* Cyan glow */
 }
 
-.section-title-light::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 4px;
-    background-color: #ffffff; /* White underline for dark backgrounds */
-    border-radius: 2px;
+/* Project Card Enhancements - Cyber Theme */
+.project-card {
+    /* border: 1px solid #374151; /* gray-700 */
+    /* transition: all 0.3s ease-in-out; */
 }
+/* .project-card:hover {
+    border-color: #06b6d4; /* cyan-500 */
+    /* box-shadow: 0 0 25px rgba(6, 182, 212, 0.3); */
+/* } */
 
-/* Project Card Enhancements */
 .project-card img {
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
 }
-
 .project-card:hover img {
-    transform: scale(1.05); /* Slight zoom on image hover */
+    transform: scale(1.03);
+    opacity: 1;
 }
 
 .tech-tag {
     display: inline-block;
-    background-color: #e0e7ff; /* Tailwind indigo-100 */
-    color: #3730a3; /* Tailwind indigo-800 */
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px; /* pill shape */
+    background-color: #374151; /* gray-700 */
+    color: #6ee7b7; /* green-300 */
+    padding: 0.3rem 0.8rem;
+    border-radius: 5px;
     font-size: 0.75rem; /* 12px */
     font-weight: 500;
+    font-family: 'Roboto Mono', monospace;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+    border: 1px solid #4b5563; /* gray-600 */
+    transition: all 0.2s ease;
+}
+.tech-tag:hover {
+    background-color: #4b5563; /* gray-600 */
+    color: #a7f3d0; /* green-200 */
+    border-color: #6ee7b7; /* green-300 */
 }
 
-/* Skill Item Hover Effect */
+/* Skill Item Hover Effect - Cyber Theme */
 .skill-item {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* background-color: #1f2937; /* gray-800 */
+    /* border: 1px solid #374151; /* gray-700 */
+    /* transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; */
 }
 .skill-item:hover {
-    transform: translateY(-5px);
+    /* transform: translateY(-5px) scale(1.02); */
+    /* border-color: #10b981; /* green-500 */
+    /* box-shadow: 0 0 20px rgba(16, 185, 129, 0.25); */
+}
+.skill-item i {
+    transition: transform 0.3s ease;
+}
+.skill-item:hover i {
+    transform: scale(1.1);
 }
 
-/* Form input focus (already handled by Tailwind focus:ring, but can be customized) */
-/* input:focus, textarea:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-} */
 
-/* Scroll Reveal Animations (to be triggered by JS) */
+/* Form input styling for dark theme */
+/* Tailwind handles focus rings well, this is just for base appearance if needed */
+/* input[type="text"],
+input[type="email"],
+textarea {
+    background-color: #374151; /* gray-700 */
+    /* border: 1px solid #4b5563; /* gray-600 */
+    /* color: #d1d5db; /* gray-300 */
+/* } */
+/* input::placeholder, textarea::placeholder {
+    color: #6b7280; /* gray-500 */
+/* } */
+
+
+/* Scroll Reveal Animations (already in JS, CSS classes are for initial state and transition) */
 .reveal {
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    transform: translateY(40px) scale(0.95);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
-
 .reveal.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
-/* Mobile Menu Transition */
+/* Mobile Menu Transition - Adjusted for dark theme */
 #mobile-menu {
     transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
     max-height: 0;
     opacity: 0;
-    overflow: hidden; /* Important for the max-height transition */
+    overflow: hidden;
+    /* background-color: #1f2937; /* gray-800 */
 }
-
 #mobile-menu.open {
     max-height: 500px; /* Adjust if more items are added */
     opacity: 1;
 }
+
+/* Add a subtle text glow for specific elements if desired */
+.text-glow-cyan {
+    text-shadow: 0 0 8px rgba(6, 182, 212, 0.7);
+}
+.text-glow-green {
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+}
+
+/* Scanline effect for hero (optional, can be performance heavy) */
+/*
+#hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        transparent,
+        transparent 2px,
+        rgba(17, 24, 39, 0.1) 3px,
+        rgba(17, 24, 39, 0.1) 4px
+    );
+    animation: scanlines 20s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes scanlines {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100vh; }
+}
+*/
+
+/* Glitch effect for text (example, apply class to elements) */
+/*
+.glitch-text {
+  animation: glitch 1s linear infinite;
+}
+
+@keyframes glitch{
+  2%,64%{ transform: translate(2px,0) skew(0deg); }
+  4%,60%{ transform: translate(-2px,0) skew(0deg); }
+  62%{ transform: translate(0,0) skew(5deg); }
+}
+.glitch-text:before,
+.glitch-text:after{
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  animation: glitch-top 1s linear infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+@keyframes glitch-top{
+  2%,64%{ transform: translate(2px,-2px); }
+  4%,60%{ transform: translate(-2px,2px); }
+  62%{ transform: translate(13px,-1px) skew(-13deg); }
+}
+.glitch-text:after{
+  animation: glitch-bottom 1.5s linear infinite;
+  clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+}
+@keyframes glitch-bottom{
+  2%,64%{ transform: translate(-2px,0); }
+  4%,60%{ transform: translate(-2px,0); }
+  62%{ transform: translate(-22px,5px) skew(21deg); }
+}
+*/
