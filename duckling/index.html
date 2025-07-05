@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duckling Adventure: Worm Feast!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-sky-400 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="game-instructions" class="text-center mb-4 p-4 bg-white/80 rounded-lg shadow-lg">
+        <h1 class="text-4xl text-orange-500 mb-2">Duckling's Worm Feast!</h1>
+        <p class="text-lg text-gray-700">Help the duckling catch all the yummy worms!</p>
+        <p class="text-lg text-gray-700">Press <strong class="text-red-500">SPACE</strong> or <strong class="text-blue-500">TAP the screen</strong> to Jump.</p>
+    </div>
+
+    <div id="game-container" class="game-container">
+        <div id="duckling"></div>
+        <div id="score-board">Score: 0</div>
+        <div id="power-board">Power: 0</div>
+        <!-- Worms will be added here by JavaScript -->
+    </div>
+
+    <div id="message-box" class="message-box hidden">
+        <p id="message-text">Game Paused</p>
+        <p id="final-score">Your Score: 0</p>
+        <button id="restart-button">Resume / Start New Game</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
