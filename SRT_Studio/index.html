@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRT Studio - Subtitle Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .timestamp-input:focus { outline: none; border-bottom: 2px solid #6366f1; }
+        .step-transition { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+    <nav class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
+                <h1 class="text-xl font-bold tracking-tight">SRT Studio</h1>
+            </div>
+            <div id="status-badge" class="text-xs font-medium px-3 py-1 bg-slate-100 text-slate-500 rounded-full">
+                Step 1: Input Content
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-6 md:p-12">
+        
+        <section id="step-1" class="step-transition">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Create Your Subtitles</h2>
+                <p class="text-slate-500">Enter your dialogue or lyrics to begin the synchronization process.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 p-8 border border-slate-100">
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold mb-2 text-slate-700">File Name</label>
+                    <input type="text" id="file-name" placeholder="my-subtitles" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none">
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold mb-2 text-slate-700">Dialogue / Lyrics</label>
+                    <textarea id="raw-text" rows="10" placeholder="Paste your text here... Each line will become a separate subtitle segment." 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none custom-scrollbar resize-none"></textarea>
+                </div>
+
+                <button onclick="goToStep2()" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-indigo-200 transform hover:-translate-y-0.5 active:translate-y-0">
+                    Process & Sync Timeline
+                </button>
+            </div>
+        </section>
+
+        <section id="step-2" class="hidden step-transition">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="display-filename">Subtitle Editor</h2>
+                    <p class="text-slate-500 text-sm">Adjust timestamps manually or use the Capture buttons.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="goToStep1()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        Back to Edit Text
+                    </button>
+                    <button onclick="downloadSRT()" class="px-6 py-2 text-sm font-bold bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all shadow-md">
+                        Download .SRT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Master Control for Live Capture -->
+            <div class="glass border border-slate-200 rounded-2xl p-6 mb-8 sticky top-24 z-40 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl font-mono font-bold text-indigo-600" id="master-timer">00:00:00.00</div>
+                    <div class="flex gap-2">
+                        <button id="toggle-timer" onclick="toggleTimer()" class="w-10 h-10 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full hover:bg-indigo-200 transition-colors">
+                            <svg id="play-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="pause-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        </button>
+                        <button onclick="resetTimer()" class="w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 max-w-[200px]">
+                    Tip: Use the "Set" buttons to capture the current timer value for start/end points.
+                </div>
+            </div>
+
+            <!-- Timeline Segments -->
+            <div id="timeline-container" class="space-y-4 pb-20">
+                <!-- Segments will be injected here -->
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let segments = [];
+        let timerInterval = null;
+        let startTime = 0;
+        let elapsedTime = 0;
+        let isRunning = false;
+
+        function goToStep1() {
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+            document.getElementById('status-badge').innerText = "Step 1: Input Content";
+            document.getElementById('status-badge').className = "text-xs font-medium px-3 py-1 bg-slate-100 text-slate-500 rounded-full";
+        }
+
+        function goToStep2() {
+            const rawText = document.getElementById('raw-text').value.trim();
+            const fileName = document.getElementById('file-name').value.trim() || 'subtitles';
+            
+            if (!rawText) {
+                alert("Please paste some text first.");
+                return;
+            }
+
+            document.getElementById('display-filename').innerText = fileName + ".srt";
+            
+            // Parse segments
+            const lines = rawText.split('\n').filter(line => line.trim() !== '');
+            segments = lines.map((line, index) => ({
+                id: index + 1,
+                text: line.trim(),
+                start: 0,
+                end: 0
+            }));
+
+            renderTimeline();
+
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            document.getElementById('status-badge').innerText = "Step 2: Sync & Adjust";
+            document.getElementById('status-badge').className = "text-xs font-medium px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full";
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            segments.forEach((seg, idx) => {
+                const div = document.createElement('div');
+                div.className = "bg-white border border-slate-200 p-5 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-6 items-start";
+                div.innerHTML = `
+                    <div class="flex-none bg-slate-50 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-slate-400 border border-slate-100">
+                        ${seg.id}
+                    </div>
+                    <div class="flex-grow w-full">
+                        <textarea class="w-full text-slate-800 font-medium mb-4 bg-transparent border-none resize-none focus:ring-0 p-0" onchange="updateText(${idx}, this.value)">${seg.text}</textarea>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Start Time</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" value="${formatTime(seg.start)}" 
+                                        onblur="manualUpdate(${idx}, 'start', this.value)"
+                                        class="timestamp-input font-mono text-sm w-full bg-slate-50 px-2 py-1 rounded">
+                                    <button onclick="captureTime(${idx}, 'start')" class="px-2 py-1 text-[10px] bg-indigo-50 text-indigo-600 rounded font-bold hover:bg-indigo-100">SET</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">End Time</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" value="${formatTime(seg.end)}" 
+                                        onblur="manualUpdate(${idx}, 'end', this.value)"
+                                        class="timestamp-input font-mono text-sm w-full bg-slate-50 px-2 py-1 rounded">
+                                    <button onclick="captureTime(${idx}, 'end')" class="px-2 py-1 text-[10px] bg-indigo-50 text-indigo-600 rounded font-bold hover:bg-indigo-100">SET</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-none self-center">
+                        <button onclick="deleteSegment(${idx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                elapsedTime += Date.now() - startTime;
+                clearInterval(timerInterval);
+                document.getElementById('play-icon').classList.remove('hidden');
+                document.getElementById('pause-icon').classList.add('hidden');
+            } else {
+                startTime = Date.now();
+                timerInterval = setInterval(updateDisplay, 10);
+                document.getElementById('play-icon').classList.add('hidden');
+                document.getElementById('pause-icon').classList.remove('hidden');
+            }
+            isRunning = !isRunning;
+        }
+
+        function resetTimer() {
+            elapsedTime = 0;
+            startTime = Date.now();
+            if (!isRunning) {
+                document.getElementById('master-timer').innerText = "00:00:00.00";
+            }
+        }
+
+        function updateDisplay() {
+            const current = elapsedTime + (Date.now() - startTime);
+            document.getElementById('master-timer').innerText = formatTime(current, true);
+        }
+
+        function formatTime(ms, includeCentis = true) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+            let milliseconds = ms % 1000;
+
+            const pad = (n, len = 2) => String(n).padStart(len, '0');
+
+            if (includeCentis) {
+                // For live display 00:00:00.00
+                return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(Math.floor(milliseconds/10))}`;
+            } else {
+                // For SRT format 00:00:00,000
+                return `${pad(hours)}:${pad(minutes)}:${pad(seconds)},${pad(milliseconds, 3)}`;
+            }
+        }
+
+        function parseToMs(srtTime) {
+            try {
+                const parts = srtTime.split(/[:,]/);
+                if (parts.length < 3) return 0;
+                const h = parseInt(parts[0]) * 3600000;
+                const m = parseInt(parts[1]) * 60000;
+                const s = parseInt(parts[2]) * 1000;
+                const ms = parts[3] ? parseInt(parts[3].padEnd(3, '0').slice(0, 3)) : 0;
+                return h + m + s + ms;
+            } catch (e) { return 0; }
+        }
+
+        function captureTime(index, type) {
+            const current = isRunning ? (elapsedTime + (Date.now() - startTime)) : elapsedTime;
+            segments[index][type] = current;
+            renderTimeline();
+        }
+
+        function manualUpdate(index, type, val) {
+            segments[index][type] = parseToMs(val);
+            renderTimeline();
+        }
+
+        function updateText(index, val) {
+            segments[index].text = val;
+        }
+
+        function deleteSegment(index) {
+            segments.splice(index, 1);
+            renderTimeline();
+        }
+
+        function downloadSRT() {
+            const fileName = (document.getElementById('file-name').value.trim() || 'subtitles') + ".srt";
+            let content = "";
+
+            // Sort segments by start time before exporting
+            const sorted = [...segments].sort((a, b) => a.start - b.start);
+
+            sorted.forEach((seg, i) => {
+                content += `${i + 1}\n`;
+                content += `${formatTime(seg.start, false)} --> ${formatTime(seg.end, false)}\n`;
+                content += `${seg.text}\n\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+    </script>
+</body>
+</html>
